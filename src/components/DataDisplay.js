@@ -23,7 +23,6 @@ const DataDisplay = () => {
         maxMovimientos: 0
     });
 
-    // Función para mostrar los valores almacenados en las variables de data en la consola
     const logData = (data) => {
         console.log("Total de Personas:", data.totalPersonas);
         console.log("Opiniones Posibles (m):", data.opinionesPosibles);
@@ -39,47 +38,72 @@ const DataDisplay = () => {
         const file = event.target.files[0];
         
         try {
-            // Leer el archivo completo como texto
             const text = await readFileAsText(file);
-            const lines = text.trim().split(/\r?\n/); // Dividir en líneas
+            const lines = text.trim().split(/\r?\n/);
 
-            const m = parseInt(lines[1]); // Número de opiniones (m)
+            const m = parseInt(lines[1]);
 
-            // Procesar cada línea de acuerdo con su estructura en el archivo
             const parsedData = {
-                totalPersonas: parseInt(lines[0]),  // Número total de personas
-                opinionesPosibles: m,               // Número de posibles opiniones
-                distribucion: lines[2].split(',').map(Number),  // Distribución de personas por opinión
-                valoresOpiniones: lines[3].split(',').map(Number),  // Valores de cada opinión
-                costosExtras: lines[4].split(',').map(Number),  // Costos extra asociados a cada opinión
-                costosDesplazamiento: lines.slice(5, 5 + m).map(line => line.split(',').map(Number)),  // Matriz de costos de desplazamiento
-                costoMaximo: parseFloat(lines[5 + m]),  // Costo máximo permitido
-                maxMovimientos: parseInt(lines[6 + m])  // Máximo de movimientos permitidos
+                totalPersonas: parseInt(lines[0]),
+                opinionesPosibles: m,
+                distribucion: lines[2].split(',').map(Number),
+                valoresOpiniones: lines[3].split(',').map(Number),
+                costosExtras: lines[4].split(',').map(Number),
+                costosDesplazamiento: lines.slice(5, 5 + m).map(line => line.split(',').map(Number)),
+                costoMaximo: parseFloat(lines[5 + m]),
+                maxMovimientos: parseInt(lines[6 + m])
             };
 
-            // Actualizar el estado con los datos parseados
             setData(parsedData);
-            logData(parsedData); // Llamada a logData para mostrar los datos en consola
+            logData(parsedData);
         } catch (error) {
             console.error("Error al leer el archivo:", error);
+        }
+    };
+
+    const sendDataToBackend = async () => {
+        try {
+            const response = await fetch("http://127.0.0.1:8000/process-data/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            console.log("Respuesta del backend:", result);
+        } catch (error) {
+            console.error("Error al enviar datos al backend:", error);
         }
     };
 
     return (
         <div style={{ padding: '20px' }}>
             <Typography variant="h4" gutterBottom>Opiniones de Población</Typography>
-            <Button
-                variant="contained"
-                component="label"
-            >
-                Cargar archivo .mpl
-                <input
-                    type="file"
-                    accept=".mpl"
-                    hidden
-                    onChange={handleFileUpload}
-                />
-            </Button>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    component="label"
+                >
+                    Cargar archivo .mpl
+                    <input
+                        type="file"
+                        accept=".mpl"
+                        hidden
+                        onChange={handleFileUpload}
+                    />
+                </Button>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={sendDataToBackend}
+                    disabled={data.totalPersonas === 0}
+                >
+                    Calcular
+                </Button>
+            </div>
 
             {data.totalPersonas > 0 && (
                 <div style={{ marginTop: '20px' }}>
