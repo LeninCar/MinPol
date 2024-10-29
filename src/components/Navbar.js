@@ -21,7 +21,7 @@ function Navbar() {
     >
       <Toolbar sx={{ minHeight: 100, width: 'calc(100% - 40px)', justifyContent: 'center' }}>
         {/* Logo centrado en el Navbar */}
-        <IconButton edge="center" color="inherit" aria-label="logo">
+        <IconButton color="inherit" aria-label="logo">
           <Box
             component="img"
             src={`${process.env.PUBLIC_URL}/logo.svg`}
