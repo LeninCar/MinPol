@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography } from '@mui/material';
-import { styled } from '@mui/system';
+import { useNavigate } from 'react-router-dom';
+import './DataDisplay.css';
 
-// Función para leer el archivo como texto usando Promesas y FileReader
+
+
 const readFileAsText = (file) => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -11,45 +13,6 @@ const readFileAsText = (file) => {
         reader.readAsText(file);
     });
 };
-
-// Contenedor principal que organiza el contenido en filas, ajustado
-const MainContainer = styled('div')({
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px', 
-    padding: '16px', 
-    marginTop: '16px', 
-    fontSize: '0.85em' 
-});
-
-// Contenedor para cada fila
-const RowContainer = styled('div')({
-    display: 'flex',
-    gap: '16px', 
-    width: '100%',
-});
-
-// Contenedor para las columnas izquierda y derecha
-const Column = styled('div')({
-    flex: '1',
-});
-
-// Estilos personalizados para cada tabla con scroll y limitación de ancho
-const ScrollableTableContainer = styled(TableContainer)(({ theme }) => ({
-    boxShadow: '0 3px 6px rgba(0, 0, 0, 0.15)',
-    borderRadius: '8px',
-    padding: '8px', 
-    maxHeight: '225px', 
-    overflowY: 'auto',
-    overflowX: 'auto',
-    maxWidth: 'calc(40vw)', 
-    width: '100%',
-}));
-
-const SmallTableCell = styled(TableCell)({
-    fontSize: '0.75rem', 
-    padding: '3px 6px', 
-});
 
 const DataDisplay = () => {
     const [data, setData] = useState({
@@ -63,7 +26,9 @@ const DataDisplay = () => {
         maxMovimientos: 0
     });
     const [output, setOutput] = useState("");
-    const [showGraphButton, setShowGraphButton] = useState(false); // Estado para controlar el botón de gráficos
+    const [showGraphButton, setShowGraphButton] = useState(false);
+
+    const navigate = useNavigate(); // Hook para navegar
 
     const handleFileUpload = async (event) => {
         const file = event.target.files[0];
@@ -113,15 +78,18 @@ const DataDisplay = () => {
         }
     };
 
+    const handleShowGraphs = () => {
+        navigate('/graficos'); // Redirige a la vista de gráficos
+    };
+
     return (
-        <div style={{ padding: '16px' }}>
+        <div className="data-display-container">
             <Typography variant="h6" gutterBottom>Opiniones de Población</Typography>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '16px' }}>
+            <div className="button-container">
                 <Button
                     variant="contained"
                     color="primary"
                     component="label"
-                    style={{ fontSize: '0.85em' }}
                 >
                     Cargar archivo .mpl
                     <input
@@ -136,121 +104,109 @@ const DataDisplay = () => {
                     color="primary"
                     onClick={sendDataToBackend}
                     disabled={data.totalPersonas === 0}
-                    style={{ fontSize: '0.85em' }}
                 >
                     Calcular
                 </Button>
             </div>
 
             {data.totalPersonas > 0 && (
-                <MainContainer>
+                <div className="main-container">
                     {/* Primera fila */}
-                    <RowContainer>
-                        <Column>
-                            <ScrollableTableContainer component={Paper}>
-                                <Typography variant="body1" gutterBottom>Distribución de Población por Opinión</Typography>
+                    <div className="row-container">
+                        <div className="column">
+                            <Typography variant="body1" gutterBottom>Distribución de Población por Opinión</Typography>
+                            <TableContainer component={Paper} className="scrollable-table-container">
                                 <Table>
                                     <TableHead>
                                         <TableRow>
-                                            <SmallTableCell>Núm. personas</SmallTableCell>
-                                            <SmallTableCell>Opinión</SmallTableCell>
+                                            <TableCell>Núm. personas</TableCell>
+                                            <TableCell>Opinión</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
                                         {data.distribucion.map((num, index) => (
                                             <TableRow key={index}>
-                                                <SmallTableCell>{num}</SmallTableCell>
-                                                <SmallTableCell>{index + 1}</SmallTableCell>
+                                                <TableCell>{num}</TableCell>
+                                                <TableCell>{index + 1}</TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
                                 </Table>
-                            </ScrollableTableContainer>
-                        </Column>
-                        <Column>
+                            </TableContainer>
+                        </div>
+                        <div className="column">
                             <div>
                                 <Typography variant="body1" gutterBottom>Costo Máximo Permitido y Máximo de Movimientos</Typography>
                                 <Typography variant="body2">Costo máximo permitido: {data.costoMaximo}</Typography>
-                                <Typography variant="body2" style={{ marginBottom: '16px' }}>Máximo de movimientos: {data.maxMovimientos}</Typography>
+                                <Typography variant="body2">Máximo de movimientos: {data.maxMovimientos}</Typography>
                                 {output && (
-                                    <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                        <Typography variant="body1" gutterBottom style={{ margin: 0 }}>Resultado de MiniZinc</Typography>
+                                    <div className="output-container">
+                                        <Typography variant="body1" gutterBottom>Resultado de MiniZinc</Typography>
                                         <Button
                                             variant="contained"
                                             color="success"
-                                            style={{ fontSize: '0.75em', marginLeft: '120px' }}
-                                            onClick={() => console.log('Mostrar gráficos')} // Acción del botón de gráficos
+                                            onClick={handleShowGraphs}
                                         >
                                             Ver Gráficos
                                         </Button>
                                     </div>
                                 )}
                                 {output && (
-                                    <Typography variant="body2" component="pre" style={{ marginTop: '10px' }}>{output}</Typography>
+                                    <Typography variant="body2" component="pre">{output}</Typography>
                                 )}
                             </div>
-                        </Column>
-                    </RowContainer>
+                        </div>
+                    </div>
                     {/* Segunda fila */}
-                    <RowContainer>
-                        <Column>
-                            <ScrollableTableContainer component={Paper}>
-                                <Typography variant="body1" gutterBottom>Valores de las Opiniones Posibles</Typography>
+                    <div className="row-container">
+                        <div className="column">
+                            <Typography variant="body1" gutterBottom>Valores de las Opiniones Posibles</Typography>
+                            <TableContainer component={Paper} className="scrollable-table-container">
                                 <Table>
                                     <TableHead>
                                         <TableRow>
-                                            <SmallTableCell>Opinión</SmallTableCell>
-                                            <SmallTableCell>Valor</SmallTableCell>
+                                            <TableCell>Opinión</TableCell>
+                                            <TableCell>Valor</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
                                         {data.valoresOpiniones.map((valor, index) => (
                                             <TableRow key={index}>
-                                                <SmallTableCell>{index + 1}</SmallTableCell>
-                                                <SmallTableCell>{valor}</SmallTableCell>
+                                                <TableCell>{index + 1}</TableCell>
+                                                <TableCell>{valor}</TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
                                 </Table>
-                            </ScrollableTableContainer>
-                        </Column>
-                        <Column>
-                            <ScrollableTableContainer
-                                component={Paper}
-                                style={{
-                                    overflowX: data.opinionesPosibles > 5 ? 'auto' : 'hidden',
-                                    width: '100%',
-                                }}
-                            >
-                                <Typography variant="body1" gutterBottom>Costos de Desplazamiento entre Opiniones</Typography>
-                                <Table
-                                    style={{
-                                        minWidth: data.opinionesPosibles > 5 ? data.opinionesPosibles * 100 : 'auto',
-                                    }}
-                                >
+                            </TableContainer>
+                        </div>
+                        <div className="column">
+                            <Typography variant="body1" gutterBottom>Costos de Desplazamiento entre Opiniones</Typography>
+                            <TableContainer component={Paper} className="scrollable-table-container">
+                                <Table>
                                     <TableHead>
                                         <TableRow>
-                                            <SmallTableCell>Opinión \\ Costo</SmallTableCell>
+                                            <TableCell>Opinión \\ Costo</TableCell>
                                             {[...Array(data.opinionesPosibles)].map((_, index) => (
-                                                <SmallTableCell key={index}>op. {index + 1}</SmallTableCell>
+                                                <TableCell key={index}>op. {index + 1}</TableCell>
                                             ))}
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
                                         {data.costosDesplazamiento.map((fila, i) => (
                                             <TableRow key={i}>
-                                                <SmallTableCell>op. {i + 1}</SmallTableCell>
+                                                <TableCell>op. {i + 1}</TableCell>
                                                 {fila.map((costo, j) => (
-                                                    <SmallTableCell key={j}>{costo}</SmallTableCell>
+                                                    <TableCell key={j}>{costo}</TableCell>
                                                 ))}
                                             </TableRow>
                                         ))}
                                     </TableBody>
                                 </Table>
-                            </ScrollableTableContainer>
-                        </Column>
-                    </RowContainer>
-                </MainContainer>
+                            </TableContainer>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

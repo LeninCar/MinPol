@@ -1,0 +1,47 @@
+.data-display-container {
+    padding: 16px;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.main-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    margin-top: 16px;
+    font-size: 0.85em;
+}
+
+.row-container {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+}
+
+.column {
+    flex: 1;
+}
+
+.scrollable-table-container {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    padding: 8px;
+    max-height: 225px;
+    overflow-y: auto;
+    overflow-x: auto;
+    max-width: calc(40vw);
+    width: 100%;
+}
+
+.output-container {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
