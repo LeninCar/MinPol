@@ -93,7 +93,7 @@ const DataDisplay = () => {
 
     const sendDataToBackend = async () => {
         try {
-            const response = await fetch("http://127.0.0.1:8000/process-data/", {
+            const response = await fetch("https://backendminpol.onrender.com/process-data/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
