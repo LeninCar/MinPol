@@ -1,19 +1,8 @@
-// src/components/DataDisplay.js
-
 import React, { useState } from 'react';
 import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import './DataDisplay.css';
-import { sendDataToBackend } from '../services/apiService'; // Importa el servicio
-
-const readFileAsText = (file) => {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = () => reject(reader.error);
-        reader.readAsText(file);
-    });
-};
+import { parseMPLFile, sendDataToBackend } from '../services/apiService';
 
 const DataDisplay = () => {
     const [data, setData] = useState({
@@ -35,22 +24,7 @@ const DataDisplay = () => {
         const file = event.target.files[0];
         
         try {
-            const text = await readFileAsText(file);
-            const lines = text.trim().split(/\r?\n/);
-
-            const m = parseInt(lines[1]);
-
-            const parsedData = {
-                totalPersonas: parseInt(lines[0]),
-                opinionesPosibles: m,
-                distribucion: lines[2].split(',').map(Number),
-                valoresOpiniones: lines[3].split(',').map(Number),
-                costosExtras: lines[4].split(',').map(Number),
-                costosDesplazamiento: lines.slice(5, 5 + m).map(line => line.split(',').map(Number)),
-                costoMaximo: parseFloat(lines[5 + m]),
-                maxMovimientos: parseInt(lines[6 + m])
-            };
-
+            const parsedData = await parseMPLFile(file); // Llama al servicio para procesar el archivo
             setData(parsedData);
         } catch (error) {
             console.error("Error al leer el archivo:", error);
@@ -59,9 +33,11 @@ const DataDisplay = () => {
 
     const handleSendData = async () => {
         try {
-            const result = await sendDataToBackend(data); // Usa el servicio para enviar los datos
+            const result = await sendDataToBackend(data);
             setOutput(result.output);
             setShowGraphButton(true);
+            // Almacena los datos de respuesta en localStorage
+            localStorage.setItem("graficsData", JSON.stringify({ ...data, ...result }));
         } catch (error) {
             console.error("Error:", error.message);
         }
