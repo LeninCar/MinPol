@@ -1,6 +1,6 @@
 import React from 'react';
 
-function Graficos() {
+function Grafics() {
     return (
         <div>
             <h2>Gráficos</h2>
@@ -9,4 +9,4 @@ function Graficos() {
     );
 }
 
-export default Graficos;
+export default Grafics;

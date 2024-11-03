@@ -1,9 +1,10 @@
+// src/components/DataDisplay.js
+
 import React, { useState } from 'react';
 import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import './DataDisplay.css';
-
-
+import { sendDataToBackend } from '../services/apiService'; // Importa el servicio
 
 const readFileAsText = (file) => {
     return new Promise((resolve, reject) => {
@@ -28,7 +29,7 @@ const DataDisplay = () => {
     const [output, setOutput] = useState("");
     const [showGraphButton, setShowGraphButton] = useState(false);
 
-    const navigate = useNavigate(); // Hook para navegar
+    const navigate = useNavigate();
 
     const handleFileUpload = async (event) => {
         const file = event.target.files[0];
@@ -56,30 +57,18 @@ const DataDisplay = () => {
         }
     };
 
-    const sendDataToBackend = async () => {
+    const handleSendData = async () => {
         try {
-            const response = await fetch("https://backendminpol.onrender.com/process-data/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data)
-            });
-    
-            const result = await response.json();
-            if (response.ok) { 
-                setOutput(result.output);
-                setShowGraphButton(true); // Mostrar el botón de gráficos cuando se obtiene el resultado
-            } else {
-                console.error("Error:", result.detail);
-            }
+            const result = await sendDataToBackend(data); // Usa el servicio para enviar los datos
+            setOutput(result.output);
+            setShowGraphButton(true);
         } catch (error) {
-            console.error("Error al enviar datos al backend:", error);
+            console.error("Error:", error.message);
         }
     };
 
     const handleShowGraphs = () => {
-        navigate('/graficos'); // Redirige a la vista de gráficos
+        navigate('/grafics');
     };
 
     return (
@@ -102,7 +91,7 @@ const DataDisplay = () => {
                 <Button
                     variant="contained"
                     color="primary"
-                    onClick={sendDataToBackend}
+                    onClick={handleSendData}
                     disabled={data.totalPersonas === 0}
                 >
                     Calcular
