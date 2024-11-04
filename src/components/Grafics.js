@@ -1,20 +1,28 @@
-import React, { useEffect, useState } from 'react';
-import { Bar, Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-import { calcularPolarizacionInicial } from '../services/apiService';
+import React from 'react';
+import { useLocation } from 'react-router-dom';
+import BarChartComponent from './BarChartComponent';
+import CostComparisonChart from './CostComparisonChart';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, Title, Tooltip, Legend);
+const Grafics = () => {
+    const location = useLocation();
+    const resultados = location.state?.resultados; // Contiene `distribucionFinal`
+    const parametros = location.state?.parametros; // Contiene `distribucionInicial` y otros parámetros
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, Title, Tooltip, Legend);
+    if (!resultados || !parametros) {
+        return <div>No hay datos para mostrar</div>;
+    }
 
-function Grafics() {
+    return (
+        <div>
+            <h2>Comparación de Distribuciones y Costos de Opiniones</h2>
+            
+            {/* Gráfico de barras para la distribución inicial y final */}
+            <BarChartComponent resultados={resultados} parametros={parametros} />
 
-
-
-
-    <div>Cargando gráficos...</div>;
-
-
-}
+            {/* Gráfico de líneas para la comparación de costos */}
+            <CostComparisonChart parametros={parametros} />
+        </div>
+    );
+};
 
 export default Grafics;

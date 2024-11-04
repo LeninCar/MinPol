@@ -16,6 +16,7 @@ const DataDisplay = () => {
         maxMovimientos: 0
     });
     const [output, setOutput] = useState("");
+
     const [showGraphButton, setShowGraphButton] = useState(false);
 
     const navigate = useNavigate();
@@ -31,20 +32,78 @@ const DataDisplay = () => {
         }
     };
 
-    const handleSendData = async () => {
-        try {
-            const result = await sendDataToBackend(data);
-            setOutput(result.output);
-            setShowGraphButton(true);
-            // Almacena los datos de respuesta en localStorage
-            localStorage.setItem("graficsData", JSON.stringify({ ...data, ...result }));
-        } catch (error) {
-            console.error("Error:", error.message);
-        }
+    const [outputJson, setOutputJson] = useState(null);
+    
+    const convertirOutputAJson = (output) => {
+        const resultado = {};
+    
+        // Separar las secciones del texto
+        const secciones = output.trim().split('\n\n').map(s => s.trim());
+    
+        // Procesar la sección de distribución final de opiniones
+        const distribucion = {};
+        secciones[0]
+            .split('\n')
+            .slice(1) // Ignora el encabezado
+            .forEach(line => {
+                const [opinion, valor] = line.split(': ').map(s => s.trim());
+                distribucion[opinion] = parseInt(valor, 10);
+            });
+        resultado.distribucionFinal = distribucion;
+    
+        // Procesar la sección de movimientos realizados
+        const movimientos = [];
+        secciones[1]
+            .split('\n')
+            .slice(1) // Ignora el encabezado
+            .forEach(line => {
+                const match = line.match(/De (\d+) a (\d+): (\d+)/);
+                if (match) {
+                    movimientos.push({
+                        i: parseInt(match[1], 10),
+                        j: parseInt(match[2], 10),
+                        value: parseInt(match[3], 10)
+                    });
+                }
+            });
+        resultado.movimientosRealizados = movimientos;
+    
+        // Procesar los valores finales de polarización, costo total y mediana ponderada
+        secciones[2]
+            .split('\n')
+            .forEach(line => {
+                const [clave, valor] = line.split(': ').map(s => s.trim());
+                if (clave === 'Polarización final') {
+                    resultado.polarizacionFinal = parseFloat(valor);
+                } else if (clave === 'Costo total') {
+                    resultado.costoTotal = parseFloat(valor);
+                } else if (clave === 'Mediana ponderada') {
+                    resultado.medianaPonderada = parseFloat(valor);
+                }
+            });
+    
+        return resultado;
     };
 
     const handleShowGraphs = () => {
-        navigate('/grafics');
+        navigate('/grafics', { state: { resultados: outputJson, parametros: data } });
+    };
+    const handleSendData = async () => {
+        try {
+            const result = await sendDataToBackend(data);
+            
+            // Actualiza el estado con el resultado recibido
+            setOutput(result.output);
+            setShowGraphButton(true);
+    
+            // Realiza la conversión a JSON directamente usando result.output
+            const json = convertirOutputAJson(result.output);
+            setOutputJson(json); // Guarda el JSON en el estado
+            console.log(json);    // Muestra el JSON en la consola
+    
+        } catch (error) {
+            console.error("Error:", error.message);
+        }
     };
 
     return (
