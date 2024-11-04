@@ -86,7 +86,7 @@ const DataDisplay = () => {
     };
 
     const handleShowGraphs = () => {
-        navigate('/grafics', { state: { resultados: outputJson, parametros: data } });
+        navigate('/graphics', { state: { resultados: outputJson, parametros: data } });
     };
     const handleSendData = async () => {
         try {
