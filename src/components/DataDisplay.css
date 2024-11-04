@@ -45,3 +45,34 @@
     align-items: center;
     gap: 10px;
 }
+
+.loading-animation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem; /* Tamaño de fuente más grande */
+    font-weight: bold;
+    color: #333;
+    height: 100px; /* Altura suficiente para centrar el texto en su área */
+    position: relative;
+    overflow: hidden;
+    animation: shimmer 2s infinite;
+    text-align: center;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200px 0; }
+    100% { background-position: 200px 0; }
+}
+
+.loading-animation::before {
+    content: 'Cargando...';
+    position: absolute;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.8) 50%, rgba(255, 255, 255, 0) 100%);
+    background-size: 200px 100%;
+    animation: shimmer 2s infinite;
+    background-clip: text; /* Propiedad estándar */
+    -webkit-background-clip: text; /* Propiedad con prefijo */
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+}

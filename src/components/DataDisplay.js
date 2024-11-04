@@ -19,6 +19,8 @@ const DataDisplay = () => {
 
     const [showGraphButton, setShowGraphButton] = useState(false);
 
+    const [loading, setLoading] = useState(false)
+
     const navigate = useNavigate();
 
     const handleFileUpload = async (event) => {
@@ -89,6 +91,7 @@ const DataDisplay = () => {
         navigate('/graphics', { state: { resultados: outputJson, parametros: data } });
     };
     const handleSendData = async () => {
+        setLoading(true);
         try {
             const result = await sendDataToBackend(data);
             
@@ -103,6 +106,9 @@ const DataDisplay = () => {
     
         } catch (error) {
             console.error("Error:", error.message);
+        }
+         finally {
+            setLoading(false); // Finaliza el estado de carga
         }
     };
 
@@ -127,12 +133,12 @@ const DataDisplay = () => {
                     variant="contained"
                     color="primary"
                     onClick={handleSendData}
-                    disabled={data.totalPersonas === 0}
+                    disabled={data.totalPersonas === 0 || loading}
                 >
-                    Calcular
+                    {loading ? 'Calculando...' : 'Calcular'}
                 </Button>
             </div>
-
+    
             {data.totalPersonas > 0 && (
                 <div className="main-container">
                     {/* Primera fila */}
@@ -163,19 +169,24 @@ const DataDisplay = () => {
                                 <Typography variant="body1" gutterBottom>Costo Máximo Permitido y Máximo de Movimientos</Typography>
                                 <Typography variant="body2">Costo máximo permitido: {data.costoMaximo}</Typography>
                                 <Typography variant="body2">Máximo de movimientos: {data.maxMovimientos}</Typography>
-                                {output && (
-                                    <div className="output-container">
-                                        <Typography variant="body1" gutterBottom>Resultado de MiniZinc</Typography>
-                                        <Button
-                                            variant="contained"
-                                            color="success"
-                                            onClick={handleShowGraphs}
-                                        >
-                                            Ver Gráficos
-                                        </Button>
-                                    </div>
+                                
+                                {loading ? (
+                                    <div className="loading-animation">Cargando...</div>
+                                ) : (
+                                    output && (
+                                        <div className="output-container">
+                                            <Typography variant="body1" gutterBottom>Resultado de MiniZinc</Typography>
+                                            <Button
+                                                variant="contained"
+                                                color="success"
+                                                onClick={handleShowGraphs}
+                                            >
+                                                Ver Gráficos
+                                            </Button>
+                                        </div>
+                                    )
                                 )}
-                                {output && (
+                                {output && !loading && (
                                     <Typography variant="body2" component="pre">{output}</Typography>
                                 )}
                             </div>
@@ -234,6 +245,7 @@ const DataDisplay = () => {
             )}
         </div>
     );
+    
 };
 
 export default DataDisplay;
