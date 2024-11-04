@@ -21,6 +21,8 @@ const DataDisplay = () => {
 
     const [loading, setLoading] = useState(false)
 
+    const [tablesVisible, setTablesVisible] = useState(false);
+
     const navigate = useNavigate();
 
     const handleFileUpload = async (event) => {
@@ -29,6 +31,7 @@ const DataDisplay = () => {
         try {
             const parsedData = await parseMPLFile(file); // Llama al servicio para procesar el archivo
             setData(parsedData);
+            setTimeout(() => setTablesVisible(true), 250);
         } catch (error) {
             console.error("Error al leer el archivo:", error);
         }
@@ -101,14 +104,14 @@ const DataDisplay = () => {
     
             // Realiza la conversión a JSON directamente usando result.output
             const json = convertirOutputAJson(result.output);
-            setOutputJson(json); // Guarda el JSON en el estado
-            console.log(json);    // Muestra el JSON en la consola
+            setOutputJson(json); 
+            console.log(json);    
     
         } catch (error) {
             console.error("Error:", error.message);
         }
          finally {
-            setLoading(false); // Finaliza el estado de carga
+            setLoading(false); 
         }
     };
 
@@ -140,7 +143,7 @@ const DataDisplay = () => {
             </div>
     
             {data.totalPersonas > 0 && (
-                <div className="main-container">
+                <div className={`main-container fade-in ${tablesVisible ? 'visible' : ''}`}>
                     {/* Primera fila */}
                     <div className="row-container">
                         <div className="column">
