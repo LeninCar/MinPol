@@ -1,0 +1,113 @@
+.data-display-container {
+    padding: 16px;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.main-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    margin-top: 16px;
+    font-size: 0.85em;
+}
+
+.row-container {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+}
+
+.column {
+    flex: 1;
+}
+
+.scrollable-table-container {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    padding: 8px;
+    max-height: 225px;
+    overflow-y: auto;
+    overflow-x: auto;
+    max-width: calc(40vw);
+    width: 100%;
+}
+
+.output-container {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.loading-animation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem; /* Tamaño de fuente más grande */
+    font-weight: bold;
+    color: #333;
+    height: 100px; /* Altura suficiente para centrar el texto en su área */
+    position: relative;
+    overflow: hidden;
+    animation: shimmer 2s infinite;
+    text-align: center;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200px 0; }
+    100% { background-position: 200px 0; }
+}
+
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.fullscreen-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.loading-animation::before {
+    content: 'Procesando archivo. Esto puede tardar máximo hasta 5 minutos. Por favor, espere.';
+    font-size: 1.2em;
+    text-align: center;
+    line-height: 1.5;
+    color: white;
+    animation: blink 1.5s ease-in-out infinite;
+}
+
+@keyframes blink {
+    0%, 100% {
+        color: #ffffff; /* Blanco */
+    }
+    50% {
+        color: #b0b0b0; /* Gris */
+    }
+}
+
+.loading-animation {
+    font-size: 1.5rem;
+    text-align: center;
+}

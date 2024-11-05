@@ -1,15 +1,11 @@
 import React, { useState } from 'react';
 import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import './DataDisplay.css';
+import { parseMPLFile, sendDataToBackend } from '../services/apiService';
+import Swal from 'sweetalert2';
+import { Divider } from '@mui/material';
 
-// Función para leer el archivo como texto usando Promesas y FileReader
-const readFileAsText = (file) => {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = () => reject(reader.error);
-        reader.readAsText(file);
-    });
-};
 
 const DataDisplay = () => {
     const [data, setData] = useState({
@@ -34,54 +30,177 @@ const DataDisplay = () => {
         console.log("Máximo de Movimientos:", data.maxMovimientos);
     };
 
+    const [fileName, setFileName] = useState("");
+
     const handleFileUpload = async (event) => {
         const file = event.target.files[0];
         
         try {
-            const text = await readFileAsText(file);
-            const lines = text.trim().split(/\r?\n/);
-
-            const m = parseInt(lines[1]);
-
-            const parsedData = {
-                totalPersonas: parseInt(lines[0]),
-                opinionesPosibles: m,
-                distribucion: lines[2].split(',').map(Number),
-                valoresOpiniones: lines[3].split(',').map(Number),
-                costosExtras: lines[4].split(',').map(Number),
-                costosDesplazamiento: lines.slice(5, 5 + m).map(line => line.split(',').map(Number)),
-                costoMaximo: parseFloat(lines[5 + m]),
-                maxMovimientos: parseInt(lines[6 + m])
-            };
-
+            setFileName(file.name);
+            setOutput('');
+            const parsedData = await parseMPLFile(file); // Llama al servicio para procesar el archivo
             setData(parsedData);
-            logData(parsedData);
+            setTimeout(() => setTablesVisible(true), 250);
+            const Toast = Swal.mixin({
+                toast: true,
+                position: { top: 120, right: 20 },
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                  toast.onmouseenter = Swal.stopTimer;
+                  toast.onmouseleave = Swal.resumeTimer;
+                }
+              });
+              Toast.fire({
+                icon: "success",
+                title: "La información se ha cargado con éxito"
+              });
         } catch (error) {
             console.error("Error al leer el archivo:", error);
+            const Toast = Swal.mixin({
+                toast: true,
+                position: { top: 120, right: 20 },
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                  toast.onmouseenter = Swal.stopTimer;
+                  toast.onmouseleave = Swal.resumeTimer;
+                }
+              });
+              Toast.fire({
+                icon: "error",
+                title: "Error al leer el archivo:", error
+              });
         }
     };
 
-    const sendDataToBackend = async () => {
-        try {
-            const response = await fetch("http://127.0.0.1:8000/process-data/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data)
+    const [outputJson, setOutputJson] = useState(null);
+    
+    const convertirOutputAJson = (output) => {
+        const resultado = {};
+    
+        // Separar las secciones del texto
+        const secciones = output.trim().split('\n\n').map(s => s.trim());
+    
+        // Procesar la sección de distribución final de opiniones
+        const distribucion = {};
+        secciones[0]
+            .split('\n')
+            .slice(1) // Ignora el encabezado
+            .forEach(line => {
+                const [opinion, valor] = line.split(': ').map(s => s.trim());
+                distribucion[opinion] = parseInt(valor, 10);
             });
+        resultado.distribucionFinal = distribucion;
+    
+        // Procesar la sección de movimientos realizados
+        const movimientos = [];
+        secciones[1]
+            .split('\n')
+            .slice(1) // Ignora el encabezado
+            .forEach(line => {
+                const match = line.match(/De (\d+) a (\d+): (\d+)/);
+                if (match) {
+                    movimientos.push({
+                        i: parseInt(match[1], 10),
+                        j: parseInt(match[2], 10),
+                        value: parseInt(match[3], 10)
+                    });
+                }
+            });
+        resultado.movimientosRealizados = movimientos;
+    
+        // Procesar los valores finales de polarización, costo total y mediana ponderada
+        secciones[2]
+            .split('\n')
+            .forEach(line => {
+                const [clave, valor] = line.split(': ').map(s => s.trim());
+                console.log(clave)
+                if (clave === 'Polarizacion final') {
+                    resultado.polarizacionFinal = parseFloat(valor);
+                } else if (clave === 'Costo total') {
+                    resultado.costoTotal = parseFloat(valor);
+                } else if (clave === 'Mediana ponderada') {
+                    resultado.medianaPonderada = parseFloat(valor);
+                }
+            });
+    
+        return resultado;
+    };
 
-            const result = await response.json();
-            console.log("Respuesta del backend:", result);
+    const handleShowGraphs = () => {
+        navigate('/graphics', { state: { resultados: outputJson, parametros: data } });
+    };
+    const handleSendData = async () => {
+        setLoading(true);
+        try {
+            const result = await sendDataToBackend(data);
+            
+            // Actualiza el estado con el resultado recibido
+            setOutput(result.output);
+            setShowGraphButton(true);
+    
+            // Realiza la conversión a JSON directamente usando result.output
+            if(result.output != "=====UNSATISFIABLE=====\n"){
+                const json = convertirOutputAJson(result.output);
+                setOutputJson(json);
+                console.log(outputJson);
+                console.log(json);
+            }
+            
+
+            const Toast = Swal.mixin({
+                toast: true,
+                position: { top: 120, right: 20 },
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                  toast.onmouseenter = Swal.stopTimer;
+                  toast.onmouseleave = Swal.resumeTimer;
+                }
+              });
+              Toast.fire({
+                icon: "success",
+                title: "La información se ha calculado con éxito"
+              });
+    
         } catch (error) {
-            console.error("Error al enviar datos al backend:", error);
+            console.error("Error:", error.message);
+            const Toast = Swal.mixin({
+                toast: true,
+                position: { top: 120, right: 20 },
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                  toast.onmouseenter = Swal.stopTimer;
+                  toast.onmouseleave = Swal.resumeTimer;
+                }
+              });
+              Toast.fire({
+                icon: "error",
+                title: error.message
+              });
+
+        } finally {
+            setLoading(false); 
         }
     };
 
     return (
-        <div style={{ padding: '20px' }}>
-            <Typography variant="h4" gutterBottom>Opiniones de Población</Typography>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
+        <div className="data-display-container">
+            {loading && (
+                <div className="fullscreen-loader">
+                    <div className="loading-animation">
+                    </div>
+                </div>
+            )}
+
+            <Typography variant="h6" gutterBottom>Opiniones de Población</Typography>
+            <div className="button-container">
                 <Button
                     variant="contained"
                     color="primary"
@@ -104,76 +223,293 @@ const DataDisplay = () => {
                     Calcular
                 </Button>
             </div>
-
+            <div className="data-display-container">
+                {fileName ? ( 
+                    <Typography variant="body1" gutterBottom>
+                        Archivo cargado: {fileName}
+                    </Typography>
+                ) : (
+                    <Typography variant="body1" gutterBottom>
+                        Aún no hay archivos cargados.
+                    </Typography>
+                )}
+            </div>
+    
             {data.totalPersonas > 0 && (
-                <div style={{ marginTop: '20px' }}>
-                    <Typography variant="h5" gutterBottom>Distribución de Población por Opinión</Typography>
-                    <TableContainer component={Paper}>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Núm. personas</TableCell>
-                                    <TableCell>Opinión</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {data.distribucion.map((num, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{num}</TableCell>
-                                        <TableCell>{index + 1}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
+                <div className={`main-container fade-in ${tablesVisible ? 'visible' : ''}`}>
+                    <Divider style={{ margin: '20px 0' }} />
+                    {/* Primera fila */}
+                    {output && (
+                        <Typography variant="h6" gutterBottom>Detalle de Resultados</Typography>
+                    )}
+                    {output && (
+                        <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                            <div className="column" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
 
-                    <Typography variant="h5" gutterBottom>Valores de las Opiniones Posibles</Typography>
-                    <TableContainer component={Paper}>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Opinión</TableCell>
-                                    <TableCell>Valor</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {data.valoresOpiniones.map((valor, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{index + 1}</TableCell>
-                                        <TableCell>{valor}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
+                                {/* Condicional para mostrar UNSATISFIABLE */}
+                                {output === "=====UNSATISFIABLE=====\n" ? (
+                                    <Typography variant="h4" align="center" style={{ color: 'red', width: '100%' }}>
+                                        UNSATISFIABLE
+                                    </Typography>
+                                ) : (
+                                    <>
+                                        {/* Tabla 1: gráficos */}
+                                        <TableContainer 
+                                            component={Paper} 
+                                            className="scrollable-table-container" 
+                                            style={{ 
+                                                flex: '1', 
+                                                margin: '0 5px', 
+                                                minHeight: '300px', 
+                                                display: 'flex', 
+                                                justifyContent: 'center',  
+                                                alignItems: 'center'       
+                                            }} 
+                                        >
+                                            <Table style={{ width: '100%' }}>
+                                                <TableHead>
+                                                    <TableRow>
+                                                        <TableCell colSpan={2}>
+                                                            <Typography variant="h6" align="center" gutterBottom>
+                                                                Gráficos
+                                                            </Typography>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                </TableHead>
+                                                <TableBody>
+                                                    <TableRow>
+                                                        <TableCell align="center" colSpan={2}>
+                                                            <Button variant="contained" color="success" onClick={handleShowGraphs}>
+                                                                Ver Gráficos
+                                                            </Button>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                </TableBody>
+                                            </Table>
+                                        </TableContainer>
 
-                    <Typography variant="h5" gutterBottom>Costos de Desplazamiento entre Opiniones</Typography>
-                    <TableContainer component={Paper}>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Opinión \\ Costo</TableCell>
-                                    {[...Array(data.opinionesPosibles)].map((_, index) => (
-                                        <TableCell key={index}>op. {index + 1}</TableCell>
-                                    ))}
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {data.costosDesplazamiento.map((fila, i) => (
-                                    <TableRow key={i}>
-                                        <TableCell>op. {i + 1}</TableCell>
-                                        {fila.map((costo, j) => (
-                                            <TableCell key={j}>{costo}</TableCell>
+                                        {/* Tabla 2: Distribución Final de Opiniones */}
+                                        <TableContainer 
+                                            component={Paper} 
+                                            className="scrollable-table-container" 
+                                            style={{ flex: '1', margin: '0 5px', minHeight: '300px' }}
+                                        >
+                                            <Table>
+                                                <TableHead>
+                                                    <TableRow>
+                                                        <TableCell colSpan={2}>
+                                                            <Typography variant="h6" align="center" gutterBottom>
+                                                                Distribución Final de Opiniones
+                                                            </Typography>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                    <TableRow>
+                                                        <TableCell align="center" style={{ width: '50px' }}>Núm. personas</TableCell>
+                                                        <TableCell align="center" style={{ width: '50px' }}>Opinión</TableCell>
+                                                    </TableRow>
+                                                </TableHead>
+                                                <TableBody>
+                                                    {Object.entries(outputJson.distribucionFinal).map(([key, value], index) => (
+                                                        <TableRow key={index}>
+                                                            <TableCell>Opinión {index}</TableCell>
+                                                            <TableCell align="right">{value}</TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                                </TableBody>
+                                            </Table>
+                                        </TableContainer>
+
+                                        {/* Tabla 3: Movimientos Realizados */}
+                                        <TableContainer 
+                                            component={Paper} 
+                                            className="scrollable-table-container" 
+                                            style={{ flex: '1', margin: '0 5px', minHeight: '300px' }}
+                                        >
+                                            <Table>
+                                                <TableHead>
+                                                    <TableRow>
+                                                        <TableCell colSpan={2}>
+                                                            <Typography variant="h6" align="center" gutterBottom>
+                                                                Movimientos Realizados
+                                                            </Typography>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                </TableHead>
+                                                <TableBody>
+                                                    {outputJson.movimientosRealizados.map((movimiento, index) => (
+                                                        <TableRow key={index}>
+                                                            <TableCell>De {movimiento.i} a {movimiento.j}</TableCell>
+                                                            <TableCell align="right">{movimiento.value}</TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                                </TableBody>
+                                            </Table>
+                                        </TableContainer>
+
+                                        {/* Tabla 4: Otros cálculos */}
+                                        <TableContainer 
+                                            component={Paper} 
+                                            className="scrollable-table-container" 
+                                            style={{ flex: '1', margin: '0 5px', minHeight: '300px' }}
+                                        >
+                                            <Table>
+                                                <TableHead>
+                                                    <TableRow>
+                                                        <TableCell colSpan={2}>
+                                                            <Typography variant="h6" align="center" gutterBottom>
+                                                                Otros Cálculos
+                                                            </Typography>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                </TableHead>
+                                                <TableBody>
+                                                    <TableRow>
+                                                        <TableCell>Polarización Final</TableCell>
+                                                        <TableCell align="right">{outputJson.polarizacionFinal}</TableCell>
+                                                    </TableRow>
+                                                    <TableRow>
+                                                        <TableCell>Costo Total</TableCell>
+                                                        <TableCell align="right">{outputJson.costoTotal}</TableCell>
+                                                    </TableRow>
+                                                    <TableRow>
+                                                        <TableCell>Mediana Ponderada</TableCell>
+                                                        <TableCell align="right">{outputJson.medianaPonderada}</TableCell>
+                                                    </TableRow>
+                                                </TableBody>
+                                            </Table>
+                                        </TableContainer>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {output && (
+                        <Divider style={{ margin: '20px 0' }} />
+                    )}
+
+                    <Typography variant="h6" gutterBottom>Datos Iniciales</Typography>
+                    
+                    {/* Segunda fila */}
+                    <div className="row-container" style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                        <div className="column" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
+                            {/* Tabla 1: Costo Máximo Permitido y Máximo de Movimientos */}
+                            <TableContainer component={Paper} className="scrollable-table-container" style={{ flex: '1', margin: '0 5px' }}>
+                                <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell colSpan={2}>
+                                                <Typography variant="h6" align="center" gutterBottom>
+                                                    Costo Máximo Permitido y Máximo de Movimientos
+                                                </Typography>
+                                            </TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        <TableRow>
+                                            <TableCell variant="body2" align="center" style={{ width: '50px' }}>Costo máximo permitido</TableCell>
+                                            <TableCell align="center" style={{ width: '50px' }}>{data.costoMaximo}</TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell variant="body2" align="center" style={{ width: '50px' }}>Máximo de movimientos</TableCell>
+                                            <TableCell align="center" style={{ width: '50px' }}>{data.maxMovimientos}</TableCell>
+                                        </TableRow>
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                            {/* Tabla 2: Distribución de Población por Opinión */}
+                            <TableContainer component={Paper} className="scrollable-table-container" style={{ flex: '1', margin: '0 5px' }}>
+                                <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell colSpan={2}>
+                                                <Typography variant="h6" align="center" gutterBottom>
+                                                    Distribución de Población por Opinión
+                                                </Typography>
+                                            </TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell align="center" style={{ width: '50px' }}>Núm. personas</TableCell>
+                                            <TableCell align="center" style={{ width: '50px' }}>Opinión</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {data.distribucion.map((num, index) => (
+                                            <TableRow key={index}>
+                                                <TableCell align="center" style={{ width: '50px' }}>{num}</TableCell>
+                                                <TableCell align="center" style={{ width: '50px' }}>{index + 1}</TableCell>
+                                            </TableRow>
                                         ))}
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
 
-                    <Typography variant="h5" gutterBottom>Costo Máximo Permitido y Máximo de Movimientos</Typography>
-                    <Typography variant="body1">Costo máximo permitido: {data.costoMaximo}</Typography>
-                    <Typography variant="body1">Máximo de movimientos: {data.maxMovimientos}</Typography>
+                            {/* Tabla 3: Valores de las Opiniones Posibles */}
+                            <TableContainer component={Paper} className="scrollable-table-container" style={{ flex: '1', margin: '0 5px' }}>
+                                <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell colSpan={2}>
+                                                <Typography variant="h6" align="center" gutterBottom>
+                                                    Valores de las Opiniones Posibles
+                                                </Typography>
+                                            </TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell align="center" style={{ width: '50px' }}>Opinión</TableCell>
+                                            <TableCell align="center" style={{ width: '50px' }}>Valor</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {data.valoresOpiniones.map((valor, index) => (
+                                            <TableRow key={index}>
+                                                <TableCell align="center" style={{ width: '50px' }}>{index + 1}</TableCell>
+                                                <TableCell align="center" style={{ width: '50px' }}>{valor}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </div>
+                    </div>
+                    {/* Tercera fila */}
+                    <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                        <div className="column" style={{ flex: '1', display: 'flex', justifyContent: 'center', width: '100%' }}>
+                            <TableContainer 
+                                component={Paper} 
+                                className="scrollable-table-container" 
+                                style={{ width: '100%', maxWidth: '2100px' }} 
+                            >
+                                <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell colSpan={data.opinionesPosibles + 1}>
+                                                <Typography variant="h6" align="center" gutterBottom>
+                                                    Costos de Desplazamiento entre Opiniones
+                                                </Typography>
+                                            </TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell>Opinión \\ Costo</TableCell>
+                                            {[...Array(data.opinionesPosibles)].map((_, index) => (
+                                                <TableCell key={index}>op. {index + 1}</TableCell>
+                                            ))}
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {data.costosDesplazamiento.map((fila, i) => (
+                                            <TableRow key={i}>
+                                                <TableCell>op. {i + 1}</TableCell>
+                                                {fila.map((costo, j) => (
+                                                    <TableCell key={j}>{costo}</TableCell>
+                                                ))}
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
