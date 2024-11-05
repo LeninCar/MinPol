@@ -18,17 +18,15 @@ const DataDisplay = () => {
         costoMaximo: 0,
         maxMovimientos: 0
     });
+    const [output, setOutput] = useState("");
 
-    const logData = (data) => {
-        console.log("Total de Personas:", data.totalPersonas);
-        console.log("Opiniones Posibles (m):", data.opinionesPosibles);
-        console.log("Distribución:", data.distribucion);
-        console.log("Valores de Opiniones:", data.valoresOpiniones);
-        console.log("Costos Extras:", data.costosExtras);
-        console.log("Costos de Desplazamiento:", data.costosDesplazamiento);
-        console.log("Costo Máximo Permitido:", data.costoMaximo);
-        console.log("Máximo de Movimientos:", data.maxMovimientos);
-    };
+    const [showGraphButton, setShowGraphButton] = useState(false);
+
+    const [loading, setLoading] = useState(false)
+
+    const [tablesVisible, setTablesVisible] = useState(false);
+
+    const navigate = useNavigate();
 
     const [fileName, setFileName] = useState("");
 
@@ -217,10 +215,10 @@ const DataDisplay = () => {
                 <Button
                     variant="contained"
                     color="primary"
-                    onClick={sendDataToBackend}
-                    disabled={data.totalPersonas === 0}
+                    onClick={handleSendData}
+                    disabled={data.totalPersonas === 0 || loading}
                 >
-                    Calcular
+                    {loading ? 'Calculando...' : 'Calcular'}
                 </Button>
             </div>
             <div className="data-display-container">
@@ -514,6 +512,7 @@ const DataDisplay = () => {
             )}
         </div>
     );
+    
 };
 
 export default DataDisplay;
