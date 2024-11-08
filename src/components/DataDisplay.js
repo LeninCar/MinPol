@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import './DataDisplay.css';
+import './Graphics.css';
 import { parseMPLFile, sendDataToBackend } from '../services/apiService';
 import Swal from 'sweetalert2';
 import { Divider } from '@mui/material';
+import BarChartComponent from './BarChartComponent';
+import CostComparisonChart from './CostComparisonChart';
 
 
 const DataDisplay = () => {
@@ -240,6 +243,23 @@ const DataDisplay = () => {
                     {output && (
                         <Typography variant="h6" gutterBottom>Detalle de Resultados</Typography>
                     )}
+
+                    {output && (
+                        <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                            <div className="column" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                                <BarChartComponent resultados={outputJson} parametros={data} />
+                            </div>
+                        </div>
+                    )}
+
+                    {output && (
+                        <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                            <div className="column" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                                <CostComparisonChart resultados={outputJson} parametros={data} />
+                            </div>
+                        </div>
+                    )}
+
                     {output && (
                         <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
                             <div className="column" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
@@ -252,7 +272,7 @@ const DataDisplay = () => {
                                 ) : (
                                     <>
                                         {/* Tabla 1: gráficos */}
-                                        <TableContainer 
+                                        {/* <TableContainer 
                                             component={Paper} 
                                             className="scrollable-table-container" 
                                             style={{ 
@@ -284,38 +304,7 @@ const DataDisplay = () => {
                                                     </TableRow>
                                                 </TableBody>
                                             </Table>
-                                        </TableContainer>
-
-                                        {/* Tabla 2: Distribución Final de Opiniones */}
-                                        <TableContainer 
-                                            component={Paper} 
-                                            className="scrollable-table-container" 
-                                            style={{ flex: '1', margin: '0 5px', minHeight: '300px' }}
-                                        >
-                                            <Table>
-                                                <TableHead>
-                                                    <TableRow>
-                                                        <TableCell colSpan={2}>
-                                                            <Typography variant="h6" align="center" gutterBottom>
-                                                                Distribución Final de Opiniones
-                                                            </Typography>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                    <TableRow>
-                                                        <TableCell align="center" style={{ width: '50px' }}>Núm. personas</TableCell>
-                                                        <TableCell align="center" style={{ width: '50px' }}>Opinión</TableCell>
-                                                    </TableRow>
-                                                </TableHead>
-                                                <TableBody>
-                                                    {Object.entries(outputJson.distribucionFinal).map(([key, value], index) => (
-                                                        <TableRow key={index}>
-                                                            <TableCell>Opinión {index}</TableCell>
-                                                            <TableCell align="right">{value}</TableCell>
-                                                        </TableRow>
-                                                    ))}
-                                                </TableBody>
-                                            </Table>
-                                        </TableContainer>
+                                        </TableContainer> */}
 
                                         {/* Tabla 3: Movimientos Realizados */}
                                         <TableContainer 
@@ -338,6 +327,37 @@ const DataDisplay = () => {
                                                         <TableRow key={index}>
                                                             <TableCell>De {movimiento.i} a {movimiento.j}</TableCell>
                                                             <TableCell align="right">{movimiento.value}</TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                                </TableBody>
+                                            </Table>
+                                        </TableContainer>
+                                        
+                                        {/* Tabla 2: Distribución Final de Opiniones */}
+                                        <TableContainer 
+                                            component={Paper} 
+                                            className="scrollable-table-container" 
+                                            style={{ flex: '1', margin: '0 5px', minHeight: '300px' }}
+                                        >
+                                            <Table>
+                                                <TableHead>
+                                                    <TableRow>
+                                                        <TableCell colSpan={2}>
+                                                            <Typography variant="h6" align="center" gutterBottom>
+                                                                Distribución Final de Opiniones
+                                                            </Typography>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                    <TableRow>
+                                                        <TableCell align="center" style={{ width: '50px' }}>Opinión</TableCell>
+                                                        <TableCell align="center" style={{ width: '50px' }}>Núm. personas</TableCell>
+                                                    </TableRow>
+                                                </TableHead>
+                                                <TableBody>
+                                                    {Object.entries(outputJson.distribucionFinal).map(([key, value], index) => (
+                                                        <TableRow key={index}>
+                                                            <TableCell align="center" style={{ width: '50px' }}>Opinión {index + 1}</TableCell>
+                                                            <TableCell align="center" style={{ width: '50px' }}>{value}</TableCell>
                                                         </TableRow>
                                                     ))}
                                                 </TableBody>
@@ -427,21 +447,20 @@ const DataDisplay = () => {
                                             </TableCell>
                                         </TableRow>
                                         <TableRow>
-                                            <TableCell align="center" style={{ width: '50px' }}>Núm. personas</TableCell>
                                             <TableCell align="center" style={{ width: '50px' }}>Opinión</TableCell>
+                                            <TableCell align="center" style={{ width: '50px' }}>Núm. personas</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
                                         {data.distribucion.map((num, index) => (
                                             <TableRow key={index}>
-                                                <TableCell align="center" style={{ width: '50px' }}>{num}</TableCell>
                                                 <TableCell align="center" style={{ width: '50px' }}>{index + 1}</TableCell>
+                                                <TableCell align="center" style={{ width: '50px' }}>{num}</TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
                                 </Table>
                             </TableContainer>
-
                             {/* Tabla 3: Valores de las Opiniones Posibles */}
                             <TableContainer component={Paper} className="scrollable-table-container" style={{ flex: '1', margin: '0 5px' }}>
                                 <Table>
