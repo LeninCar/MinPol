@@ -17,6 +17,7 @@ function Navbar() {
         display: 'flex',
         justifyContent: 'center',
         paddingX: '20px',  // Aplica un padding horizontal para alinear con el contenido
+        zIndex: 10, // Esto asegura que el Navbar esté por debajo del Toast
       }}
     >
       <Toolbar sx={{ minHeight: 100, width: 'calc(100% - 40px)', justifyContent: 'center' }}>

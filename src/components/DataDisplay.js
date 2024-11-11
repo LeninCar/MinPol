@@ -45,7 +45,7 @@ const DataDisplay = () => {
             setTimeout(() => setTablesVisible(true), 250);
             const Toast = Swal.mixin({
                 toast: true,
-                position: { top: 120, right: 20 },
+                position: 'top-end',
                 showConfirmButton: false,
                 timer: 3000,
                 timerProgressBar: true,
@@ -62,7 +62,7 @@ const DataDisplay = () => {
             console.error("Error al leer el archivo:", error);
             const Toast = Swal.mixin({
                 toast: true,
-                position: { top: 120, right: 20 },
+                position: 'top-end',
                 showConfirmButton: false,
                 timer: 3000,
                 timerProgressBar: true,
@@ -167,7 +167,7 @@ const DataDisplay = () => {
 
             const Toast = Swal.mixin({
                 toast: true,
-                position: { top: 120, right: 20 },
+                position: 'top-end',
                 showConfirmButton: false,
                 timer: 3000,
                 timerProgressBar: true,
@@ -185,7 +185,7 @@ const DataDisplay = () => {
             console.error("Error:", error.message);
             const Toast = Swal.mixin({
                 toast: true,
-                position: { top: 120, right: 20 },
+                position: 'top-end',
                 showConfirmButton: false,
                 timer: 3000,
                 timerProgressBar: true,
