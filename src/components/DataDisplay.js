@@ -19,16 +19,14 @@ const DataDisplay = () => {
         costosExtras: [],
         costosDesplazamiento: [],
         costoMaximo: 0,
-        maxMovimientos: 0
+        maxMovimientos: 0,
+        solverSeleccionado: 'Gurobi'
     });
+
     const [totalMovimientos, setTotalMovimientos] = useState(0);
     const [output, setOutput] = useState("");
 
     const [selectedOption, setSelectedOption] = useState('');
-
-    const handleSelectChange = (event) => {
-        setSelectedOption(event.target.value);
-    };
 
     // const [showGraphButton, setShowGraphButton] = useState(false);
 
@@ -82,6 +80,17 @@ const DataDisplay = () => {
                 title: "Error al leer el archivo:", error
             });
         }
+    };
+
+    const handleSelectChange = (event) => {
+        const newValue = event.target.value;
+        setSelectedOption(newValue);
+        
+
+        setData(prevData => ({
+            ...prevData,
+            solverSeleccionado: newValue || 'Gurobi'
+        }));
     };
 
     const [outputJson, setOutputJson] = useState(null);
@@ -363,6 +372,10 @@ const DataDisplay = () => {
                             </Table>
                         </TableContainer>
                     )}
+                    
+                    {output && (
+                        <Divider style={{ margin: '20px 0' }} />
+                    )}
 
                     {output && (
                         <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
@@ -381,6 +394,10 @@ const DataDisplay = () => {
                                 )}
                             </div>
                         </div>
+                    )}
+
+                    {output && (
+                        <Divider style={{ margin: '20px 0' }} />
                     )}
 
                     {output && (
@@ -403,6 +420,11 @@ const DataDisplay = () => {
                             </div>
                         </div>
                     )}
+
+                    {output && (
+                        <Divider style={{ margin: '20px 0' }} />
+                    )}
+
                     {output && (
                         <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
                             <div className="column" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
@@ -466,6 +488,11 @@ const DataDisplay = () => {
                             </div>
                         </div>
                     )}
+
+                    {output && (
+                        <Divider style={{ margin: '20px 0' }} />
+                    )}
+
                     {output && (
                         <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
                             <div className="column" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
@@ -697,6 +724,9 @@ const DataDisplay = () => {
                             </TableContainer>
                         </div>
                     </div>
+                    {output && (
+                        <Divider style={{ margin: '20px 0' }} />
+                    )}
                     {/* Tercera fila */}
                     <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
                         <div className="column" style={{ flex: '1', display: 'flex', justifyContent: 'center', width: '100%' }}>
