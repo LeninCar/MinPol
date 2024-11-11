@@ -36,7 +36,7 @@ export const parseMPLFile = async (file) => {
 
 export const sendDataToBackend = async (data) => {
     try {
-         const response = await fetch("http://148.113.195.81:8000/process-data/", {
+         const response = await fetch("https://148.113.195.81:8000/process-data/", {
         //const response = await fetch("http://127.0.0.1:8000/process-data/", {
             method: "POST",
             headers: {
