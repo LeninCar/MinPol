@@ -65,18 +65,6 @@
     100% { background-position: 200px 0; }
 }
 
-.loading-animation::before {
-    content: 'Cargando...';
-    position: absolute;
-    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.8) 50%, rgba(255, 255, 255, 0) 100%);
-    background-size: 200px 100%;
-    animation: shimmer 2s infinite;
-    background-clip: text; /* Propiedad estándar */
-    -webkit-background-clip: text; /* Propiedad con prefijo */
-    color: transparent;
-    -webkit-text-fill-color: transparent;
-}
-
 .fade-in {
     opacity: 0;
     transform: translateY(20px);
@@ -87,3 +75,40 @@
     opacity: 1;
     transform: translateY(0);
 }
+
+.fullscreen-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.loading-animation::before {
+    content: 'Procesando archivo. Esto puede tardar máximo hasta 5 minutos. Por favor, espere.';
+    font-size: 1.2em;
+    text-align: center;
+    line-height: 1.5;
+    color: white;
+    animation: blink 1.5s ease-in-out infinite;
+}
+
+@keyframes blink {
+    0%, 100% {
+        color: #ffffff; /* Blanco */
+    }
+    50% {
+        color: #b0b0b0; /* Gris */
+    }
+}
+
+.loading-animation {
+    font-size: 1.5rem;
+    text-align: center;
+}
+

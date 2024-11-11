@@ -23,7 +23,8 @@ export const parseMPLFile = async (file) => {
             costosExtras: lines[4].split(',').map(Number),
             costosDesplazamiento: lines.slice(5, 5 + m).map(line => line.split(',').map(Number)),
             costoMaximo: parseFloat(lines[5 + m]),
-            maxMovimientos: parseInt(lines[6 + m])
+            maxMovimientos: parseInt(lines[6 + m]),
+            
         };
 
         return parsedData;
@@ -35,7 +36,8 @@ export const parseMPLFile = async (file) => {
 
 export const sendDataToBackend = async (data) => {
     try {
-        const response = await fetch("https://backendminpol.onrender.com/process-data/", {
+         const response = await fetch("https://backendminpol.onrender.com/process-data/", {
+        //const response = await fetch("http://127.0.0.1:8000/process-data/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
