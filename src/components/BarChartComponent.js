@@ -28,37 +28,37 @@ const BarChartComponent = ({ resultados, parametros }) => {
     const costoTotal = resultados.costoTotal || 0;                  // Costo total final
 
 
-    // // Configuración de los datos para el gráfico de barras
-    // const opinionChartData = {
-    //     labels: Object.keys(distribucionFinal), // Etiquetas (Opinión 1, Opinión 2, etc.)
-    //     datasets: [
-    //         {
-    //             label: 'Distribución Inicial',
-    //             data: distribucionInicial,
-    //             backgroundColor: 'rgba(75, 192, 192, 0.6)',
-    //         },
-    //         {
-    //             label: 'Distribución Final',
-    //             data: Object.values(distribucionFinal),
-    //             backgroundColor: 'rgba(255, 99, 132, 0.6)',
-    //         },
-    //     ],
-    // };
-
-    // Configuración de los datos para el gráfico de movimientos
-    const movimientosLabels = movimientos.map(mov => `De ${mov.i} a ${mov.j}`);
-    const movimientosData = movimientos.map(mov => mov.value);
-    
-    const movimientosChartData = {
-        labels: movimientosLabels,
+    // Configuración de los datos para el gráfico de barras
+    const opinionChartData = {
+        labels: Object.keys(distribucionFinal), // Etiquetas (Opinión 1, Opinión 2, etc.)
         datasets: [
             {
-                label: 'Cantidad de Movimientos',
-                data: movimientosData,
-                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                label: 'Distribución Inicial',
+                data: distribucionInicial,
+                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+            },
+            {
+                label: 'Distribución Final',
+                data: Object.values(distribucionFinal),
+                backgroundColor: 'rgba(255, 99, 132, 0.6)',
             },
         ],
     };
+
+    // // Configuración de los datos para el gráfico de movimientos
+    // const movimientosLabels = movimientos.map(mov => `De ${mov.i} a ${mov.j}`);
+    // const movimientosData = movimientos.map(mov => mov.value);
+    
+    // const movimientosChartData = {
+    //     labels: movimientosLabels,
+    //     datasets: [
+    //         {
+    //             label: 'Cantidad de Movimientos',
+    //             data: movimientosData,
+    //             backgroundColor: 'rgba(54, 162, 235, 0.6)',
+    //         },
+    //     ],
+    // };
 
     // Configuración de los datos para el gráfico de Comparación de Costos
     const costosChartData = {
@@ -78,37 +78,37 @@ const BarChartComponent = ({ resultados, parametros }) => {
     };
 
     return (
-        // <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
-        //     <div style={{ width: '600px', height: '400px', margin: '0 auto' }}>
-        //         <h3>Distribución Inicial y Final de Opiniones</h3>
-        //         <Bar 
-        //             data={opinionChartData}
-        //             options={{
-        //                 responsive: true,
-        //                 plugins: {
-        //                     legend: { position: 'top' },
-        //                     title: { display: true, text: 'Comparación de Distribución Inicial y Final' },
-        //                 },
-        //                 scales: {
-        //                     x: {
-        //                         title: {
-        //                             display: true,
-        //                             text: 'Opinión',
-        //                         },
-        //                     },
-        //                     y: {
-        //                         title: {
-        //                             display: true,
-        //                             text: 'Número de Personas',
-        //                         },
-        //                         beginAtZero: true,
-        //                     },
-        //                 },
-        //             }}
-        //         />
-        //     </div>
-
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
             <div style={{ width: '600px', height: '400px', margin: '0 auto' }}>
+                <h3>Distribución Inicial y Final de Opiniones</h3>
+                <Bar 
+                    data={opinionChartData}
+                    options={{
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'top' },
+                            title: { display: true, text: 'Comparación de Distribución Inicial y Final' },
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Opinión',
+                                },
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Número de Personas',
+                                },
+                                beginAtZero: true,
+                            },
+                        },
+                    }}
+                />
+            </div>
+
+            {/* <div style={{ width: '600px', height: '400px', margin: '0 auto' }}>
                 <h3>Movimientos Realizados</h3>
                 <Bar 
                     data={movimientosChartData}
@@ -139,9 +139,9 @@ const BarChartComponent = ({ resultados, parametros }) => {
                         },
                     }}
                 />
-            </div>
+            </div> */}
 
-        // </div>
+        </div>
     );
 };
 
