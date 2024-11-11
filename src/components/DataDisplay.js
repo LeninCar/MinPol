@@ -267,6 +267,24 @@ const DataDisplay = () => {
                     {output && (
                         <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
                             <div className="column" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
+
+                            {output && (
+                        <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                            <div className="column" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                                <BarChartComponent resultados={outputJson} parametros={data} />
+                            </div>
+                        </div>
+                    )}
+
+
+
+                        </div>
+                    </div>
+                    )}
+
+                    {output && (
+                        <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                            <div className="column" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
                             <TableContainer 
                                 component={Paper} 
                                 className="scrollable-table-container" 
@@ -277,7 +295,7 @@ const DataDisplay = () => {
                                         <TableRow>
                                             <TableCell align="center" colSpan={6}>
                                                 <Typography variant="h6" align="center" gutterBottom>
-                                                    Matriz de Transición de Opiniones (5x5)
+                                                    Matriz de Transición de Opiniones
                                                 </Typography>
                                             </TableCell>
                                         </TableRow>
@@ -309,9 +327,11 @@ const DataDisplay = () => {
 
 
 
-                    </div>
                         </div>
+                    </div>
                     )}
+
+
 
                     {output && (
                         <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
