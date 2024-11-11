@@ -320,12 +320,12 @@ const DataDisplay = () => {
                                 {outputJson.polarizacionFinal > 0 ? (
                                     <span>Este gráfico compara la distribución inicial y final de opiniones para visualizar cómo las estrategias de moderación impactan en el extremismo de la red. 
                                         La distribución inicial muestra el nivel de extremismo antes de aplicar las estrategias, mientras que la distribución final refleja el estado de la red después de la moderación.
-                                        En este caso, la polarización final ha sido disminuida.</span>
+                                    </span>
                                 ) : (
                                     <span>Este gráfico compara la distribución inicial y final de opiniones para visualizar cómo las estrategias de moderación impactan en el extremismo de la red. 
                                     La distribución inicial muestra el nivel de extremismo antes de aplicar las estrategias, mientras que la distribución final refleja el estado de la red después de la moderación.
                                     En este caso, se ha llegado a un consenso, esto quiere decir que nuestra polarizacion es 0.</span>
-                                )}
+                                )}
                             </div>
                         </div>
                     )}
@@ -340,7 +340,7 @@ const DataDisplay = () => {
                                     <span>
                                         {outputJson.movimientosRealizados.map((movimiento, index) => (
                                             <p key={index}>
-                                                Movimiento realizado de {movimiento.i} a {movimiento.j} con valor {movimiento.value}
+                                                Los movimientos realizados de {movimiento.i} a {movimiento.j} fueron: {movimiento.value}
                                             </p>
                                         ))}
                                     </span>
@@ -363,7 +363,7 @@ const DataDisplay = () => {
                                             <TableRow>
                                                 <TableCell align="center" colSpan={data.opinionesPosibles + 1}>
                                                     <Typography variant="h6" align="center" gutterBottom>
-                                                        Matriz de Transición de Opiniones ({data.opinionesPosibles}x{data.opinionesPosibles})
+                                                        Matriz de Transición de Opiniones
                                                     </Typography>
                                                 </TableCell>
                                             </TableRow>
