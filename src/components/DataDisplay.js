@@ -7,7 +7,7 @@ import { parseMPLFile, sendDataToBackend } from '../services/apiService';
 import Swal from 'sweetalert2';
 import { Divider } from '@mui/material';
 import BarChartComponent from './BarChartComponent';
-// import CostComparisonChart from './CostComparisonChart';
+import CostComparisonChart from './CostComparisonChart';
 
 
 const DataDisplay = () => {
@@ -118,7 +118,7 @@ const DataDisplay = () => {
             .split('\n')
             .forEach(line => {
                 const [clave, valor] = line.split(': ').map(s => s.trim());
-                if (clave === 'Polarización final') {
+                if (clave === 'Polarizacion final') {
                     resultado.polarizacionFinal = parseFloat(valor);
                 } else if (clave === 'Costo total') {
                     resultado.costoTotal = parseFloat(valor);
@@ -255,16 +255,30 @@ const DataDisplay = () => {
                             <div className="column" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                                 <BarChartComponent resultados={outputJson} parametros={data} />
                             </div>
+                            <div className="column" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                                {outputJson.polarizacionFinal > 0 ? (
+                                    <span>Texto para polarización verdadera</span>
+                                ) : (
+                                    <span>Texto para polarización falsa</span>
+                                )}
+                            </div>
                         </div>
                     )}
 
-                    {/* {output && (
+                    {output && (
                         <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
                             <div className="column" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                                 <CostComparisonChart resultados={outputJson} parametros={data} />
                             </div>
+                            <div className="column" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                                {outputJson.movimientosRealizados.length > 0 ? (
+                                    <span>Texto para polarización verdadera</span>
+                                ) : (
+                                    <span>Texto para polarización falsa</span>
+                                )}
+                            </div>
                         </div>
-                    )} */}
+                    )}
                     {output && (
                         <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
                             <div className="column" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>

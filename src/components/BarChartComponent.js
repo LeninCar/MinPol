@@ -45,20 +45,20 @@ const BarChartComponent = ({ resultados, parametros }) => {
         ],
     };
 
-    // Configuración de los datos para el gráfico de movimientos
-    const movimientosLabels = movimientos.map(mov => `De ${mov.i} a ${mov.j}`);
-    const movimientosData = movimientos.map(mov => mov.value);
+    // // Configuración de los datos para el gráfico de movimientos
+    // const movimientosLabels = movimientos.map(mov => `De ${mov.i} a ${mov.j}`);
+    // const movimientosData = movimientos.map(mov => mov.value);
     
-    const movimientosChartData = {
-        labels: movimientosLabels,
-        datasets: [
-            {
-                label: 'Cantidad de Movimientos',
-                data: movimientosData,
-                backgroundColor: 'rgba(54, 162, 235, 0.6)',
-            },
-        ],
-    };
+    // const movimientosChartData = {
+    //     labels: movimientosLabels,
+    //     datasets: [
+    //         {
+    //             label: 'Cantidad de Movimientos',
+    //             data: movimientosData,
+    //             backgroundColor: 'rgba(54, 162, 235, 0.6)',
+    //         },
+    //     ],
+    // };
 
     // Configuración de los datos para el gráfico de Comparación de Costos
     const costosChartData = {
@@ -108,7 +108,7 @@ const BarChartComponent = ({ resultados, parametros }) => {
                 />
             </div>
 
-            <div style={{ width: '600px', height: '400px', margin: '0 auto' }}>
+            {/* <div style={{ width: '600px', height: '400px', margin: '0 auto' }}>
                 <h3>Movimientos Realizados</h3>
                 <Bar 
                     data={movimientosChartData}
@@ -139,7 +139,7 @@ const BarChartComponent = ({ resultados, parametros }) => {
                         },
                     }}
                 />
-            </div>
+            </div> */}
 
         </div>
     );
