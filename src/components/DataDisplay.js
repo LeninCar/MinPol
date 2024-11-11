@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography } from '@mui/material';
+import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Select, MenuItem } from '@mui/material';
 // import { useNavigate } from 'react-router-dom';
 import './DataDisplay.css';
 import './Graphics.css';
@@ -19,10 +19,14 @@ const DataDisplay = () => {
         costosExtras: [],
         costosDesplazamiento: [],
         costoMaximo: 0,
-        maxMovimientos: 0
+        maxMovimientos: 0,
+        solverSeleccionado: 'Gurobi'
     });
+
     const [totalMovimientos, setTotalMovimientos] = useState(0);
     const [output, setOutput] = useState("");
+
+    const [selectedOption, setSelectedOption] = useState('');
 
     // const [showGraphButton, setShowGraphButton] = useState(false);
 
@@ -78,29 +82,40 @@ const DataDisplay = () => {
         }
     };
 
+    const handleSelectChange = (event) => {
+        const newValue = event.target.value;
+        setSelectedOption(newValue);
+        
+
+        setData(prevData => ({
+            ...prevData,
+            solverSeleccionado: newValue || 'Gurobi'
+        }));
+    };
+
     const [outputJson, setOutputJson] = useState(null);
 
     const convertirOutputAJson = (output) => {
         const resultado = {};
-
-        // Separar las secciones del texto por saltos de línea dobles
-        const secciones = output.trim().split('\n\n').map(s => s.trim());
-
+    
+        // Separar las secciones del texto por saltos de línea dobles (maneja \n o \r\n)
+        const secciones = output.trim().split(/\r?\n\r?\n/).map(s => s.trim());
+    
         // Procesar la sección de distribución final de opiniones
         const distribucion = {};
         secciones[0]
-            .split('\n')
+            .split(/\r?\n/)  // Maneja \n o \r\n en cada línea
             .slice(1) // Ignora el encabezado
             .forEach(line => {
                 const [opinion, valor] = line.split(': ').map(s => s.trim());
                 distribucion[opinion] = parseInt(valor, 10);
             });
         resultado.distribucionFinal = distribucion;
-
+    
         // Procesar la sección de movimientos realizados
         const movimientos = [];
         secciones[1]
-            .split('\n')
+            .split(/\r?\n/)  // Maneja \n o \r\n en cada línea
             .slice(1) // Ignora el encabezado
             .forEach(line => {
                 const match = line.match(/De (\d+) a (\d+): (\d+)/);
@@ -113,10 +128,10 @@ const DataDisplay = () => {
                 }
             });
         resultado.movimientosRealizados = movimientos;
-
+    
         // Procesar los valores finales de polarización, costo total y mediana ponderada
         secciones[2]
-            .split('\n')
+            .split(/\r?\n/)  // Maneja \n o \r\n en cada línea
             .forEach(line => {
                 const [clave, valor] = line.split(': ').map(s => s.trim());
                 if (clave === 'Polarizacion final') {
@@ -127,15 +142,16 @@ const DataDisplay = () => {
                     resultado.medianaPonderada = parseFloat(valor);
                 }
             });
-
+    
         // Procesar los valores de x desde la sección específica
         const xMatch = output.match(/x:\[([\d, ]+)\]/);
         if (xMatch && xMatch[1]) {
             resultado.x = xMatch[1].split(',').map(num => parseInt(num.trim(), 10));
         }
-
+    
         return resultado;
     };
+    
 
     // const handleShowGraphs = () => {
     //     navigate('/graphics', { state: { resultados: outputJson, parametros: data } });
@@ -214,11 +230,21 @@ const DataDisplay = () => {
             )}
 
             <Typography variant="h6" gutterBottom>Opiniones de Población</Typography>
-            <div className="button-container">
+            <div className="button-container" style={{ display: 'flex', gap: '12px', alignItems: 'center', justifyContent: 'center', marginTop: '16px' }}>
+
                 <Button
                     variant="contained"
                     color="primary"
                     component="label"
+                    style={{
+                        padding: '6px 16px',
+                        color: '#ffffff',
+                        boxShadow: '0 2px 6px rgba(0, 0, 0, 0.2)',
+                        borderRadius: '6px',
+                        fontSize: '0.9rem',
+                        fontWeight: 'bold',
+                        textTransform: 'none',
+                    }}
                 >
                     Cargar archivo .mpl
                     <input
@@ -228,15 +254,51 @@ const DataDisplay = () => {
                         onChange={handleFileUpload}
                     />
                 </Button>
+
+                <Select
+                    value={selectedOption}
+                    onChange={handleSelectChange}
+                    displayEmpty
+                    style={{
+                        padding: '6px 12px',
+                        fontSize: '0.875rem',
+                        borderRadius: '8px',
+                        backgroundColor: '#ffffff',
+                        border: '1px solid #ddd',
+                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                        minWidth: 160,
+                        height: '40px', // Igualar altura a los botones
+                        color: '#333',
+                    }}
+                >
+                    <MenuItem value="">
+                        <em>Seleccione un solver</em>
+                    </MenuItem>
+                    <MenuItem value="Gecode">Gecode</MenuItem>
+                    <MenuItem value="gecode">gecode</MenuItem>
+                    <MenuItem value="gurobi">Gurobi</MenuItem>
+                </Select>
+            </div>
+            <div className="button-container" style={{ display: 'flex', gap: '12px', alignItems: 'center', justifyContent: 'center', marginTop: '16px' }}>
                 <Button
                     variant="contained"
                     color="primary"
                     onClick={handleSendData}
                     disabled={data.totalPersonas === 0 || loading}
+                    style={{
+                        padding: '6px 16px',
+                        color: '#ffffff',
+                        boxShadow: loading ? 'none' : '0 2px 6px rgba(0, 0, 0, 0.2)',
+                        borderRadius: '6px',
+                        fontSize: '0.9rem',
+                        fontWeight: 'bold',
+                        textTransform: 'none',
+                    }}
                 >
                     {loading ? 'Calculando...' : 'Calcular'}
                 </Button>
             </div>
+
             <div className="data-display-container">
                 {fileName ? (
                     <Typography variant="body1" gutterBottom>
@@ -310,6 +372,10 @@ const DataDisplay = () => {
                             </Table>
                         </TableContainer>
                     )}
+                    
+                    {output && (
+                        <Divider style={{ margin: '20px 0' }} />
+                    )}
 
                     {output && (
                         <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
@@ -336,6 +402,10 @@ const DataDisplay = () => {
                     )}
 
                     {output && (
+                        <Divider style={{ margin: '20px 0' }} />
+                    )}
+
+                    {output && (
                         <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
                             <div className="column" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                                 <CostComparisonChart resultados={outputJson} parametros={data} />
@@ -355,6 +425,11 @@ const DataDisplay = () => {
                             </div>
                         </div>
                     )}
+
+                    {output && (
+                        <Divider style={{ margin: '20px 0' }} />
+                    )}
+
                     {output && (
                         <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
                             <div className="column" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
@@ -418,6 +493,11 @@ const DataDisplay = () => {
                             </div>
                         </div>
                     )}
+
+                    {output && (
+                        <Divider style={{ margin: '20px 0' }} />
+                    )}
+
                     {output && (
                         <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
                             <div className="column" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
@@ -649,6 +729,9 @@ const DataDisplay = () => {
                             </TableContainer>
                         </div>
                     </div>
+                    {output && (
+                        <Divider style={{ margin: '20px 0' }} />
+                    )}
                     {/* Tercera fila */}
                     <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
                         <div className="column" style={{ flex: '1', display: 'flex', justifyContent: 'center', width: '100%' }}>
