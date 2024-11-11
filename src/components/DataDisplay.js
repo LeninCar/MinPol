@@ -317,15 +317,20 @@ const DataDisplay = () => {
                                 <BarChartComponent resultados={outputJson} parametros={data} />
                             </div>
                             <div className="column" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                                {outputJson.polarizacionFinal > 0 ? (
-                                    <span>Este gráfico compara la distribución inicial y final de opiniones para visualizar cómo las estrategias de moderación impactan en el extremismo de la red. 
-                                        La distribución inicial muestra el nivel de extremismo antes de aplicar las estrategias, mientras que la distribución final refleja el estado de la red después de la moderación.
-                                    </span>
-                                ) : (
-                                    <span>Este gráfico compara la distribución inicial y final de opiniones para visualizar cómo las estrategias de moderación impactan en el extremismo de la red. 
+                            {outputJson.polarizacionFinal > 0 ? (
+                                <span className="custom-paragraph">
+                                    Este gráfico compara la distribución inicial y final de opiniones para visualizar cómo las estrategias de moderación impactan en el extremismo de la red. 
                                     La distribución inicial muestra el nivel de extremismo antes de aplicar las estrategias, mientras que la distribución final refleja el estado de la red después de la moderación.
-                                    En este caso, se ha llegado a un consenso, esto quiere decir que nuestra polarizacion es 0.</span>
-                                )}
+                                </span>
+                            ) : (
+                                <span className="custom-paragraph">
+                                    Este gráfico compara la distribución inicial y final de opiniones para visualizar cómo las estrategias de moderación impactan en el extremismo de la red. 
+                                    La distribución inicial muestra el nivel de extremismo antes de aplicar las estrategias, mientras que la distribución final refleja el estado de la red después de la moderación.
+                                    En este caso, se ha llegado a un consenso, esto quiere decir que nuestra polarización es 0.
+                                </span>
+                            )}
+
+                        
                             </div>
                         </div>
                     )}
@@ -339,7 +344,7 @@ const DataDisplay = () => {
                                 {outputJson.movimientosRealizados.length > 0 ? (
                                     <span>
                                         {outputJson.movimientosRealizados.map((movimiento, index) => (
-                                            <p key={index}>
+                                            <p key={index} className="movement-paragraph">
                                                 Los movimientos realizados de {movimiento.i} a {movimiento.j} fueron: {movimiento.value}
                                             </p>
                                         ))}
