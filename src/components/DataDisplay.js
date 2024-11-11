@@ -21,6 +21,7 @@ const DataDisplay = () => {
         costoMaximo: 0,
         maxMovimientos: 0
     });
+    const [totalMovimientos, setTotalMovimientos] = useState(0);
     const [output, setOutput] = useState("");
 
     // const [showGraphButton, setShowGraphButton] = useState(false);
@@ -152,6 +153,12 @@ const DataDisplay = () => {
             // Realiza la conversión a JSON directamente usando result.output
             if (result.output !== "=====UNSATISFIABLE=====\n") {
                 const json = convertirOutputAJson(result.output);
+                console.log(json)
+                setTotalMovimientos(
+                    json.movimientosRealizados
+                        ? json.movimientosRealizados.reduce((acc, item) => acc + (item.value || 0), 0)
+                        : 0
+                );
                 setOutputJson(json);
                 console.log(outputJson);
                 console.log(json);
@@ -249,6 +256,60 @@ const DataDisplay = () => {
                     {output && (
                         <Typography variant="h6" gutterBottom>Detalle de Resultados</Typography>
                     )}
+                    
+                    {output && (                                      
+                        <TableContainer
+                            component={Paper}
+                            className="table-container"
+                            style={{
+                                maxWidth: '900px', // Adjust the max width based on your layout
+                                margin: '0 auto', // Centers the table horizontally
+                                padding: '20px', // Adds padding for spacing
+                                minHeight: '300px'
+                            }}
+                        >
+                            <Table>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell colSpan={5}>
+                                            <Typography variant="h6" align="center" gutterBottom>
+                                                Comparación de valores
+                                            </Typography>
+                                        </TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    <TableRow>
+                                        <TableCell align="center" style={{ width: '50px' }}>Polarización Inicial</TableCell>
+                                        <TableCell align="center" style={{ width: '50px' }}>{outputJson.polarizacionFinal}</TableCell>
+                                        <TableCell align="center" style={{ width: '50px' }}>Polarización Final</TableCell>
+                                        <TableCell align="center" style={{ width: '50px' }}>{outputJson.polarizacionFinal}</TableCell>
+                                        <TableCell align="center" style={{ width: '50px' }}>
+                                            {outputJson.polarizacionFinal < 1 ? "Se disminuyó la polarización" : "No se disminuyó la polarización"}
+                                        </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell align="center" style={{ width: '50px' }}>Costo Máximo</TableCell>
+                                        <TableCell align="center" style={{ width: '50px' }}>{data.costoMaximo}</TableCell>
+                                        <TableCell align="center" style={{ width: '50px' }}>Costo Total</TableCell>
+                                        <TableCell align="center" style={{ width: '50px' }}>{outputJson.costoTotal}</TableCell>
+                                        <TableCell align="center" style={{ width: '50px' }}>
+                                            {outputJson.costoTotal <= data.costoMaximo ? "Se cumplió con la restricción del costo máximo" : "No se cumplió con la restricción del costo máximo"}
+                                        </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell align="center" style={{ width: '50px' }}>Cantidad de Movimientos Máximos</TableCell>
+                                        <TableCell align="center" style={{ width: '50px' }}>{data.maxMovimientos}</TableCell>
+                                        <TableCell align="center" style={{ width: '50px' }}>Cantidad de Movimientos Realizados</TableCell>
+                                        <TableCell align="center" style={{ width: '50px' }}>{totalMovimientos}</TableCell>
+                                        <TableCell align="center" style={{ width: '50px' }}>
+                                            {totalMovimientos <= data.maxMovimientos ? "Se cumplió con la restricción de cantidad de movimientos" : "No se cumplió con la restricción de cantidad de movimientos"}
+                                        </TableCell>
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    )}
 
                     {output && (
                         <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
@@ -257,9 +318,13 @@ const DataDisplay = () => {
                             </div>
                             <div className="column" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                                 {outputJson.polarizacionFinal > 0 ? (
-                                    <span>Texto para polarización verdadera</span>
+                                    <span>Este gráfico compara la distribución inicial y final de opiniones para visualizar cómo las estrategias de moderación impactan en el extremismo de la red. 
+                                        La distribución inicial muestra el nivel de extremismo antes de aplicar las estrategias, mientras que la distribución final refleja el estado de la red después de la moderación.
+                                        En este caso, la polarización final ha sido disminuida.</span>
                                 ) : (
-                                    <span>Texto para polarización falsa</span>
+                                    <span>Este gráfico compara la distribución inicial y final de opiniones para visualizar cómo las estrategias de moderación impactan en el extremismo de la red. 
+                                    La distribución inicial muestra el nivel de extremismo antes de aplicar las estrategias, mientras que la distribución final refleja el estado de la red después de la moderación.
+                                    En este caso, se ha llegado a un consenso, esto quiere decir que nuestra polarizacion es 0.</span>
                                 )}
                             </div>
                         </div>
@@ -272,9 +337,15 @@ const DataDisplay = () => {
                             </div>
                             <div className="column" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                                 {outputJson.movimientosRealizados.length > 0 ? (
-                                    <span>Texto para polarización verdadera</span>
+                                    <span>
+                                        {outputJson.movimientosRealizados.map((movimiento, index) => (
+                                            <p key={index}>
+                                                Movimiento realizado de {movimiento.i} a {movimiento.j} con valor {movimiento.value}
+                                            </p>
+                                        ))}
+                                    </span>
                                 ) : (
-                                    <span>Texto para polarización falsa</span>
+                                    <span>No se han realizado movimientos.</span>
                                 )}
                             </div>
                         </div>
@@ -285,7 +356,7 @@ const DataDisplay = () => {
                                 <TableContainer
                                     component={Paper}
                                     className="scrollable-table-container"
-                                    style={{ width: '100%', maxWidth: '2100px' }}
+                                    style={{ width: '100%', maxWidth: '2100px', minHeight: '300px'}}
                                 >
                                     <Table>
                                         <TableHead>
@@ -448,7 +519,7 @@ const DataDisplay = () => {
                                         </TableContainer>
 
                                         {/* Tabla 4: Otros cálculos */}
-                                        <TableContainer
+                                        {/* <TableContainer
                                             component={Paper}
                                             className="scrollable-table-container"
                                             style={{ flex: '1', margin: '0 5px', minHeight: '300px' }}
@@ -458,27 +529,28 @@ const DataDisplay = () => {
                                                     <TableRow>
                                                         <TableCell colSpan={2}>
                                                             <Typography variant="h6" align="center" gutterBottom>
-                                                                Otros Cálculos
+                                                                Comparación de valores
                                                             </Typography>
                                                         </TableCell>
                                                     </TableRow>
                                                 </TableHead>
                                                 <TableBody>
                                                     <TableRow>
-                                                        <TableCell>Polarización Final</TableCell>
-                                                        <TableCell align="right">{outputJson.polarizacionFinal}</TableCell>
+                                                        <TableCell align="center" style={{ width: '50px' }}>Polarización Final</TableCell>
+                                                        <TableCell align="center" style={{ width: '50px' }}>{outputJson.polarizacionFinal}</TableCell>
                                                     </TableRow>
                                                     <TableRow>
-                                                        <TableCell>Costo Total</TableCell>
-                                                        <TableCell align="right">{outputJson.costoTotal}</TableCell>
+                                                        <TableCell align="center" style={{ width: '50px' }}>Costo Total</TableCell>
+                                                        <TableCell align="center" style={{ width: '50px' }}>{outputJson.costoTotal}</TableCell>
                                                     </TableRow>
                                                     <TableRow>
-                                                        <TableCell>Mediana Ponderada</TableCell>
-                                                        <TableCell align="right">{outputJson.medianaPonderada}</TableCell>
+                                                        <TableCell align="center" style={{ width: '50px' }}>Mediana Ponderada</TableCell>
+                                                        <TableCell align="center" style={{ width: '50px' }}>{outputJson.medianaPonderada}</TableCell>
                                                     </TableRow>
                                                 </TableBody>
                                             </Table>
                                         </TableContainer>
+                                    </> */}
                                     </>
                                 )}
                             </div>
@@ -590,18 +662,18 @@ const DataDisplay = () => {
                                             </TableCell>
                                         </TableRow>
                                         <TableRow>
-                                            <TableCell>Opinión \\ Costo</TableCell>
+                                            <TableCell align="center" style={{ width: '50px' }}>Opinión \\ Costo</TableCell>
                                             {[...Array(data.opinionesPosibles)].map((_, index) => (
-                                                <TableCell key={index}>op. {index + 1}</TableCell>
+                                                <TableCell align="center" style={{ width: '50px' }} key={index}>op. {index + 1}</TableCell>
                                             ))}
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
                                         {data.costosDesplazamiento.map((fila, i) => (
                                             <TableRow key={i}>
-                                                <TableCell>op. {i + 1}</TableCell>
+                                                <TableCell align="center" style={{ width: '50px' }}>op. {i + 1}</TableCell>
                                                 {fila.map((costo, j) => (
-                                                    <TableCell key={j}>{costo}</TableCell>
+                                                    <TableCell align="center" style={{ width: '50px' }} key={j}>{costo}</TableCell>
                                                 ))}
                                             </TableRow>
                                         ))}
