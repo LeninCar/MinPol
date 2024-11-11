@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import BarChartComponent from './BarChartComponent';
-import CostComparisonChart from './CostComparisonChart';
+//import CostComparisonChart from './CostComparisonChart';
 
 import './Graphics.css'; // Importa el archivo CSS
 
@@ -28,7 +28,7 @@ const Graphics = () => {
         <div>
             <h2>Comparación de Distribuciones y Costos de Opiniones</h2>
             <BarChartComponent resultados={resultados} parametros={parametros} />
-            <CostComparisonChart parametros={parametros} />
+            {/* <CostComparisonChart parametros={parametros} /> */}
         </div>
     );
 };

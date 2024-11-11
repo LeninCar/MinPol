@@ -82,7 +82,7 @@ const DataDisplay = () => {
     const convertirOutputAJson = (output) => {
         const resultado = {};
     
-        // Separar las secciones del texto
+        // Separar las secciones del texto por saltos de línea dobles
         const secciones = output.trim().split('\n\n').map(s => s.trim());
     
         // Procesar la sección de distribución final de opiniones
@@ -118,8 +118,7 @@ const DataDisplay = () => {
             .split('\n')
             .forEach(line => {
                 const [clave, valor] = line.split(': ').map(s => s.trim());
-                console.log(clave)
-                if (clave === 'Polarizacion final') {
+                if (clave === 'Polarización final') {
                     resultado.polarizacionFinal = parseFloat(valor);
                 } else if (clave === 'Costo total') {
                     resultado.costoTotal = parseFloat(valor);
@@ -127,6 +126,12 @@ const DataDisplay = () => {
                     resultado.medianaPonderada = parseFloat(valor);
                 }
             });
+    
+        // Procesar los valores de x desde la sección específica
+        const xMatch = output.match(/x:\[([\d, ]+)\]/);
+        if (xMatch && xMatch[1]) {
+            resultado.x = xMatch[1].split(',').map(num => parseInt(num.trim(), 10));
+        }
     
         return resultado;
     };
@@ -252,17 +257,66 @@ const DataDisplay = () => {
                         </div>
                     )}
 
-                    {output && (
+                    {/* {output && (
                         <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
                             <div className="column" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                                 <CostComparisonChart resultados={outputJson} parametros={data} />
                             </div>
+                        </div>
+                    )} */}
+                    {output && (
+                        <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                            <div className="column" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
+                            <TableContainer 
+                                component={Paper} 
+                                className="scrollable-table-container" 
+                                style={{ width: '100%', maxWidth: '2100px' }} 
+                            >
+                                <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell align="center" colSpan={6}>
+                                                <Typography variant="h6" align="center" gutterBottom>
+                                                    Matriz de Transición de Opiniones (5x5)
+                                                </Typography>
+                                            </TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell align="center" style={{ width: '50px' }}>De \ A</TableCell>
+                                            <TableCell align="center" style={{ width: '50px' }}>Opinión 1</TableCell>
+                                            <TableCell align="center" style={{ width: '50px' }}>Opinión 2</TableCell>
+                                            <TableCell align="center" style={{ width: '50px' }}>Opinión 3</TableCell>
+                                            <TableCell align="center" style={{ width: '50px' }}>Opinión 4</TableCell>
+                                            <TableCell align="center" style={{ width: '50px' }}>Opinión 5</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {Array.from({ length: 5 }).map((_, rowIndex) => (
+                                            <TableRow key={rowIndex}>
+                                                <TableCell align="center" style={{ width: '50px' }}>
+                                                    Opinión {rowIndex + 1}
+                                                </TableCell>
+                                                {outputJson?.x?.slice(rowIndex * 5, (rowIndex + 1) * 5).map((valor, colIndex) => (
+                                                    <TableCell key={colIndex} align="center" style={{ width: '50px' }}>
+                                                        {valor}
+                                                    </TableCell>
+                                                ))}
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+
+
+
+                    </div>
                         </div>
                     )}
 
                     {output && (
                         <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
                             <div className="column" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
+                                
 
                                 {/* Condicional para mostrar UNSATISFIABLE */}
                                 {output === "=====UNSATISFIABLE=====\n" ? (
@@ -325,8 +379,8 @@ const DataDisplay = () => {
                                                 <TableBody>
                                                     {outputJson.movimientosRealizados.map((movimiento, index) => (
                                                         <TableRow key={index}>
-                                                            <TableCell>De {movimiento.i} a {movimiento.j}</TableCell>
-                                                            <TableCell align="right">{movimiento.value}</TableCell>
+                                                            <TableCell align="center" style={{ width: '50px' }}>De {movimiento.i} a {movimiento.j}</TableCell>
+                                                            <TableCell align="center" style={{ width: '50px' }}>{movimiento.value}</TableCell>
                                                         </TableRow>
                                                     ))}
                                                 </TableBody>
