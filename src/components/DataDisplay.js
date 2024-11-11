@@ -119,7 +119,7 @@ const DataDisplay = () => {
             .split('\n')
             .forEach(line => {
                 const [clave, valor] = line.split(': ').map(s => s.trim());
-                if (clave === 'Polarizacion final') {
+                if (clave === 'Polarización final') {
                     resultado.polarizacionFinal = parseFloat(valor);
                 } else if (clave === 'Costo total') {
                     resultado.costoTotal = parseFloat(valor);
