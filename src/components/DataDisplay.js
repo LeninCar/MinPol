@@ -473,146 +473,65 @@ const DataDisplay = () => {
                             </div>
                             <Divider style={{ margin: '20px 0' }} />
                             <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-                            <div className="column" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
+                                <div className="column" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
+                                    <TableContainer
+                                        component={Paper}
+                                        className="scrollable-table-container"
+                                        style={{ flex: '1', margin: '0 5px', minHeight: '300px' }}
+                                    >
+                                        <Table>
+                                            <TableHead>
+                                                <TableRow>
+                                                    <TableCell colSpan={2}>
+                                                        <Typography variant="h6" align="center" gutterBottom>
+                                                            Movimientos Realizados
+                                                        </Typography>
+                                                    </TableCell>
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {outputJson.movimientosRealizados.map((movimiento, index) => (
+                                                    <TableRow key={index}>
+                                                        <TableCell align="center" style={{ width: '50px' }}>De {movimiento.i} a {movimiento.j}</TableCell>
+                                                        <TableCell align="center" style={{ width: '50px' }}>{movimiento.value}</TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </TableContainer>
 
-
-                                {/* Condicional para mostrar UNSATISFIABLE */}
-                                {output === "=====UNSATISFIABLE=====\n" ? (
-                                    <Typography variant="h4" align="center" style={{ color: 'red', width: '100%' }}>
-                                        UNSATISFIABLE
-                                    </Typography>
-                                ) : (
-                                    <>
-                                        {/* Tabla 1: gráficos */}
-                                        {/* <TableContainer 
-                                            component={Paper} 
-                                            className="scrollable-table-container" 
-                                            style={{ 
-                                                flex: '1', 
-                                                margin: '0 5px', 
-                                                minHeight: '300px', 
-                                                display: 'flex', 
-                                                justifyContent: 'center',  
-                                                alignItems: 'center'       
-                                            }} 
-                                        >
-                                            <Table style={{ width: '100%' }}>
-                                                <TableHead>
-                                                    <TableRow>
-                                                        <TableCell colSpan={2}>
-                                                            <Typography variant="h6" align="center" gutterBottom>
-                                                                Gráficos
-                                                            </Typography>
-                                                        </TableCell>
+                                    {/* Tabla 2: Distribución Final de Opiniones */}
+                                    <TableContainer
+                                        component={Paper}
+                                        className="scrollable-table-container"
+                                        style={{ flex: '1', margin: '0 5px', minHeight: '300px' }}
+                                    >
+                                        <Table>
+                                            <TableHead>
+                                                <TableRow>
+                                                    <TableCell colSpan={2}>
+                                                        <Typography variant="h6" align="center" gutterBottom>
+                                                            Distribución Final de Opiniones
+                                                        </Typography>
+                                                    </TableCell>
+                                                </TableRow>
+                                                <TableRow>
+                                                    <TableCell align="center" style={{ width: '50px' }}>Opinión</TableCell>
+                                                    <TableCell align="center" style={{ width: '50px' }}>Núm. personas</TableCell>
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {Object.entries(outputJson.distribucionFinal).map(([key, value], index) => (
+                                                    <TableRow key={index}>
+                                                        <TableCell align="center" style={{ width: '50px' }}>Opinión {index + 1}</TableCell>
+                                                        <TableCell align="center" style={{ width: '50px' }}>{value}</TableCell>
                                                     </TableRow>
-                                                </TableHead>
-                                                <TableBody>
-                                                    <TableRow>
-                                                        <TableCell align="center" colSpan={2}>
-                                                            <Button variant="contained" color="success" onClick={handleShowGraphs}>
-                                                                Ver Gráficos
-                                                            </Button>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                </TableBody>
-                                            </Table>
-                                        </TableContainer> */}
-
-                                        {/* Tabla 3: Movimientos Realizados */}
-                                        <TableContainer
-                                            component={Paper}
-                                            className="scrollable-table-container"
-                                            style={{ flex: '1', margin: '0 5px', minHeight: '300px' }}
-                                        >
-                                            <Table>
-                                                <TableHead>
-                                                    <TableRow>
-                                                        <TableCell colSpan={2}>
-                                                            <Typography variant="h6" align="center" gutterBottom>
-                                                                Movimientos Realizados
-                                                            </Typography>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                </TableHead>
-                                                <TableBody>
-                                                    {outputJson.movimientosRealizados.map((movimiento, index) => (
-                                                        <TableRow key={index}>
-                                                            <TableCell align="center" style={{ width: '50px' }}>De {movimiento.i} a {movimiento.j}</TableCell>
-                                                            <TableCell align="center" style={{ width: '50px' }}>{movimiento.value}</TableCell>
-                                                        </TableRow>
-                                                    ))}
-                                                </TableBody>
-                                            </Table>
-                                        </TableContainer>
-
-                                        {/* Tabla 2: Distribución Final de Opiniones */}
-                                        <TableContainer
-                                            component={Paper}
-                                            className="scrollable-table-container"
-                                            style={{ flex: '1', margin: '0 5px', minHeight: '300px' }}
-                                        >
-                                            <Table>
-                                                <TableHead>
-                                                    <TableRow>
-                                                        <TableCell colSpan={2}>
-                                                            <Typography variant="h6" align="center" gutterBottom>
-                                                                Distribución Final de Opiniones
-                                                            </Typography>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                    <TableRow>
-                                                        <TableCell align="center" style={{ width: '50px' }}>Opinión</TableCell>
-                                                        <TableCell align="center" style={{ width: '50px' }}>Núm. personas</TableCell>
-                                                    </TableRow>
-                                                </TableHead>
-                                                <TableBody>
-                                                    {Object.entries(outputJson.distribucionFinal).map(([key, value], index) => (
-                                                        <TableRow key={index}>
-                                                            <TableCell align="center" style={{ width: '50px' }}>Opinión {index + 1}</TableCell>
-                                                            <TableCell align="center" style={{ width: '50px' }}>{value}</TableCell>
-                                                        </TableRow>
-                                                    ))}
-                                                </TableBody>
-                                            </Table>
-                                        </TableContainer>
-
-                                        {/* Tabla 4: Otros cálculos */}
-                                        {/* <TableContainer
-                                            component={Paper}
-                                            className="scrollable-table-container"
-                                            style={{ flex: '1', margin: '0 5px', minHeight: '300px' }}
-                                        >
-                                            <Table>
-                                                <TableHead>
-                                                    <TableRow>
-                                                        <TableCell colSpan={2}>
-                                                            <Typography variant="h6" align="center" gutterBottom>
-                                                                Comparación de valores
-                                                            </Typography>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                </TableHead>
-                                                <TableBody>
-                                                    <TableRow>
-                                                        <TableCell align="center" style={{ width: '50px' }}>Polarización Final</TableCell>
-                                                        <TableCell align="center" style={{ width: '50px' }}>{outputJson.polarizacionFinal}</TableCell>
-                                                    </TableRow>
-                                                    <TableRow>
-                                                        <TableCell align="center" style={{ width: '50px' }}>Costo Total</TableCell>
-                                                        <TableCell align="center" style={{ width: '50px' }}>{outputJson.costoTotal}</TableCell>
-                                                    </TableRow>
-                                                    <TableRow>
-                                                        <TableCell align="center" style={{ width: '50px' }}>Mediana Ponderada</TableCell>
-                                                        <TableCell align="center" style={{ width: '50px' }}>{outputJson.medianaPonderada}</TableCell>
-                                                    </TableRow>
-                                                </TableBody>
-                                            </Table>
-                                        </TableContainer>
-                                    </> */}
-                                    </>
-                                )}
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </TableContainer>
+                                </div>
                             </div>
-                        </div>
                         </>
                     )}
 
