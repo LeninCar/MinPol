@@ -144,7 +144,7 @@ const DataDisplay = () => {
             .split(/\r?\n|\r|\n/)  // Maneja \n, \r, o \r\n en cada línea
             .forEach(line => {
                 const [clave, valor] = line.split(': ').map(s => s.trim());
-                if (clave === 'Polarización final') {
+                if (clave === 'Polarizacion final') {
                     resultado.polarizacionFinal = parseFloat(valor);
                 } else if (clave === 'Costo total') {
                     resultado.costoTotal = parseFloat(valor);
