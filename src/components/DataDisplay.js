@@ -367,7 +367,7 @@ const DataDisplay = () => {
                                             <TableCell align="center">Polarización Final</TableCell>
                                             <TableCell align="center">{outputJson.polarizacionFinal}</TableCell>
                                             <TableCell align="center">
-                                                {outputJson.polarizacionFinal < 1 ? "Se disminuyó la polarización" : "No se disminuyó la polarización"}
+                                            {outputJson.polarizacionFinal < initialPolarization ? "Se disminuyó la polarización" : "No se disminuyó la polarización"}
                                             </TableCell>
                                         </TableRow>
                                         <TableRow>
