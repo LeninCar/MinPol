@@ -100,6 +100,9 @@ const DataDisplay = () => {
     };
 
     const [outputJson, setOutputJson] = useState(null);
+
+
+    
     const convertirOutputAJson = (output) => {
         const resultado = {};
     
