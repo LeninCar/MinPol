@@ -112,3 +112,21 @@
     text-align: center;
 }
 
+
+/* DataDisplay.css o un archivo CSS relevante */
+.custom-paragraph {
+    font-size: 1rem; /* Ajusta el tamaño de la fuente */
+    max-width: 600px; /* Limita el ancho del párrafo */
+    margin: 0 auto; /* Centra el párrafo */
+    line-height: 1.6; /* Mejora la legibilidad */
+    text-align: justify; /* Opcional: justifica el texto */
+}
+
+.movement-paragraph {
+    font-size: 1rem; /* Ajusta el tamaño de la fuente para movimientos */
+    max-width: 600px; /* Limita el ancho del párrafo */
+    margin: 0 auto; /* Centra el párrafo */
+    line-height: 1.4; /* Ajusta la separación entre líneas */
+    text-align: justify; /* Opcional: justifica el texto */
+}
+
