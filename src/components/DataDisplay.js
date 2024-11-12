@@ -274,8 +274,7 @@ const DataDisplay = () => {
                     <MenuItem value="">
                         <em>Seleccione un solver</em>
                     </MenuItem>
-                    <MenuItem value="Gecode">Gecode</MenuItem>
-                    <MenuItem value="gecode">gecode</MenuItem>
+                    <MenuItem value="gecode">Gecode</MenuItem>
                     <MenuItem value="gurobi">Gurobi</MenuItem>
                 </Select>
             </div>
