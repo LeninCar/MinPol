@@ -159,15 +159,15 @@ const DataDisplay = () => {
             setInitialMedian(result.initial_median);
     
             // Validar si es insatisfactible
-            if (result.minizinc_output.includes("=====UNSATISFIABLE=====")) {
+            if (result.output.includes("=====UNSATISFIABLE=====")) {
                 throw new Error("El modelo no tiene solución (UNSATISFIABLE).");
             }
     
             // Procesar 'minizinc_output'
-            const trimmedOutput = result.minizinc_output.trim();
+            const trimmedOutput = result.output.trim();
             const json = convertirOutputAJson(trimmedOutput);
     
-            setOutput(result.minizinc_output);
+            setOutput(result.output);
             setOutputJson(json);
     
             // Cálculo de movimientos totales
