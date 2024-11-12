@@ -167,7 +167,7 @@ const DataDisplay = () => {
             // setShowGraphButton(true);
 
             // Realiza la conversión a JSON directamente usando result.output
-            if (result.output !== "=====UNSATISFIABLE=====\n") {
+            if (result.output !== "=====UNSATISFIABLE=====\r\n") {
                 const json = convertirOutputAJson(result.output);
                 console.log(json)
                 setTotalMovimientos(
@@ -318,183 +318,162 @@ const DataDisplay = () => {
                     {output && (
                         <Typography variant="h6" gutterBottom>Detalle de Resultados</Typography>
                     )}
-                    
-                    {output && (                                      
-                        <TableContainer
-                            component={Paper}
-                            className="table-container"
-                            style={{
-                                maxWidth: '900px', // Adjust the max width based on your layout
-                                margin: '0 auto', // Centers the table horizontally
-                                padding: '20px', // Adds padding for spacing
-                                minHeight: '300px'
-                            }}
-                        >
-                            <Table>
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell colSpan={5}>
-                                            <Typography variant="h6" align="center" gutterBottom>
-                                                Comparación de valores
-                                            </Typography>
-                                        </TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    <TableRow>
-                                        <TableCell align="center" style={{ width: '50px' }}>Polarización Inicial</TableCell>
-                                        <TableCell align="center" style={{ width: '50px' }}>{outputJson.polarizacionFinal}</TableCell>
-                                        <TableCell align="center" style={{ width: '50px' }}>Polarización Final</TableCell>
-                                        <TableCell align="center" style={{ width: '50px' }}>{outputJson.polarizacionFinal}</TableCell>
-                                        <TableCell align="center" style={{ width: '50px' }}>
-                                            {outputJson.polarizacionFinal < 1 ? "Se disminuyó la polarización" : "No se disminuyó la polarización"}
-                                        </TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                        <TableCell align="center" style={{ width: '50px' }}>Costo Máximo</TableCell>
-                                        <TableCell align="center" style={{ width: '50px' }}>{data.costoMaximo}</TableCell>
-                                        <TableCell align="center" style={{ width: '50px' }}>Costo Total</TableCell>
-                                        <TableCell align="center" style={{ width: '50px' }}>{outputJson.costoTotal}</TableCell>
-                                        <TableCell align="center" style={{ width: '50px' }}>
-                                            {outputJson.costoTotal <= data.costoMaximo ? "Se cumplió con la restricción del costo máximo" : "No se cumplió con la restricción del costo máximo"}
-                                        </TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                        <TableCell align="center" style={{ width: '50px' }}>Cantidad de Movimientos Máximos</TableCell>
-                                        <TableCell align="center" style={{ width: '50px' }}>{data.maxMovimientos}</TableCell>
-                                        <TableCell align="center" style={{ width: '50px' }}>Cantidad de Movimientos Realizados</TableCell>
-                                        <TableCell align="center" style={{ width: '50px' }}>{totalMovimientos}</TableCell>
-                                        <TableCell align="center" style={{ width: '50px' }}>
-                                            {totalMovimientos <= data.maxMovimientos ? "Se cumplió con la restricción de cantidad de movimientos" : "No se cumplió con la restricción de cantidad de movimientos"}
-                                        </TableCell>
-                                    </TableRow>
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    )}
-                    
-                    {output && (
-                        <Divider style={{ margin: '20px 0' }} />
-                    )}
 
-                    {output && (
-                        <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-                            <div className="column" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                                <BarChartComponent resultados={outputJson} parametros={data} />
-                            </div>
-                            <div className="column" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                                {outputJson.polarizacionFinal > 0 ? (
-                                    <span>Este gráfico compara la distribución inicial y final de opiniones para visualizar cómo las estrategias de moderación impactan en el extremismo de la red. 
-                                        La distribución inicial muestra el nivel de extremismo antes de aplicar las estrategias, mientras que la distribución final refleja el estado de la red después de la moderación.
-                                    </span>
-                                ) : (
-                                    <span>Este gráfico compara la distribución inicial y final de opiniones para visualizar cómo las estrategias de moderación impactan en el extremismo de la red. 
-                                    La distribución inicial muestra el nivel de extremismo antes de aplicar las estrategias, mientras que la distribución final refleja el estado de la red después de la moderación.
-                                    En este caso, se ha llegado a un consenso, esto quiere decir que nuestra polarizacion es 0.</span>
-                                )}
-                            </div>
-                        </div>
-                    )}
+                    {output === "=====UNSATISFIABLE=====\r\n" ? (
+                        <Typography variant="h4" align="center" style={{ color: 'red', width: '100%' }}>
+                            UNSATISFIABLE
+                        </Typography>
+                    ) : output && (
+                        <>
+                            <TableContainer
+                                component={Paper}
+                                className="table-container"
+                                style={{
+                                    maxWidth: '900px',
+                                    margin: '0 auto',
+                                    padding: '20px',
+                                    minHeight: '300px'
+                                }}
+                            >
+                                <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell colSpan={5}>
+                                                <Typography variant="h6" align="center" gutterBottom>
+                                                    Comparación de valores
+                                                </Typography>
+                                            </TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        <TableRow>
+                                            <TableCell align="center">Polarización Inicial</TableCell>
+                                            <TableCell align="center">{outputJson.polarizacionFinal}</TableCell>
+                                            <TableCell align="center">Polarización Final</TableCell>
+                                            <TableCell align="center">{outputJson.polarizacionFinal}</TableCell>
+                                            <TableCell align="center">
+                                                {outputJson.polarizacionFinal < 1 ? "Se disminuyó la polarización" : "No se disminuyó la polarización"}
+                                            </TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell align="center">Costo Máximo</TableCell>
+                                            <TableCell align="center">{data.costoMaximo}</TableCell>
+                                            <TableCell align="center">Costo Total</TableCell>
+                                            <TableCell align="center">{outputJson.costoTotal}</TableCell>
+                                            <TableCell align="center">
+                                                {outputJson.costoTotal <= data.costoMaximo ? "Se cumplió con la restricción del costo máximo" : "No se cumplió con la restricción del costo máximo"}
+                                            </TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell align="center">Cantidad de Movimientos Máximos</TableCell>
+                                            <TableCell align="center">{data.maxMovimientos}</TableCell>
+                                            <TableCell align="center">Cantidad de Movimientos Realizados</TableCell>
+                                            <TableCell align="center">{totalMovimientos}</TableCell>
+                                            <TableCell align="center">
+                                                {totalMovimientos <= data.maxMovimientos ? "Se cumplió con la restricción de cantidad de movimientos" : "No se cumplió con la restricción de cantidad de movimientos"}
+                                            </TableCell>
+                                        </TableRow>
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
 
-                    {output && (
-                        <Divider style={{ margin: '20px 0' }} />
-                    )}
+                            <Divider style={{ margin: '20px 0' }} />
 
-                    {output && (
-                        <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-                            <div className="column" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                                <CostComparisonChart resultados={outputJson} parametros={data} />
-                            </div>
-                            <div className="column" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                                {outputJson.movimientosRealizados.length > 0 ? (
+                            <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                                <div className="column" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                                    <BarChartComponent resultados={outputJson} parametros={data} />
+                                </div>
+                                <div className="column" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                                     <span>
-                                        {outputJson.movimientosRealizados.map((movimiento, index) => (
+                                        Este gráfico compara la distribución inicial y final de opiniones para visualizar cómo las estrategias de moderación impactan en el extremismo de la red.
+                                        {outputJson.polarizacionFinal > 0 ? (
+                                            " La distribución inicial muestra el nivel de extremismo antes de aplicar las estrategias, mientras que la distribución final refleja el estado de la red después de la moderación."
+                                        ) : (
+                                            " En este caso, se ha llegado a un consenso, esto quiere decir que nuestra polarización es 0."
+                                        )}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <Divider style={{ margin: '20px 0' }} />
+
+                            <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                                <div className="column" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                                    <CostComparisonChart resultados={outputJson} parametros={data} />
+                                </div>
+                                <div className="column" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                                    {outputJson.movimientosRealizados.length > 0 ? (
+                                        outputJson.movimientosRealizados.map((movimiento, index) => (
                                             <p key={index}>
                                                 Los movimientos realizados de {movimiento.i} a {movimiento.j} fueron: {movimiento.value}
                                             </p>
-                                        ))}
-                                    </span>
-                                ) : (
-                                    <span>No se han realizado movimientos.</span>
-                                )}
+                                        ))
+                                    ) : (
+                                        <span>No se han realizado movimientos.</span>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    )}
 
-                    {output && (
-                        <Divider style={{ margin: '20px 0' }} />
-                    )}
+                            <Divider style={{ margin: '20px 0' }} />
 
-                    {output && (
-                        <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-                            <div className="column" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
-                                <TableContainer
-                                    component={Paper}
-                                    className="scrollable-table-container"
-                                    style={{ width: '100%', maxWidth: '2100px', minHeight: '300px'}}
-                                >
-                                    <Table>
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell align="center" colSpan={data.opinionesPosibles + 1}>
-                                                    <Typography variant="h6" align="center" gutterBottom>
-                                                        Matriz de Transición de Opiniones
-                                                    </Typography>
-                                                </TableCell>
-                                            </TableRow>
-                                            <TableRow>
-                                                <TableCell align="center" style={{ width: '50px' }}>De \ A</TableCell>
-                                                {/* Generar las columnas dinámicamente desde 'Opinion 1' hasta 'Opinion 5' */}
-                                                {Object.keys(outputJson.distribucionFinal).map((opinion, colIndex) => (
-                                                    <TableCell key={colIndex} align="center" style={{ width: '50px' }}>
-                                                        {opinion}
+                            <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                                <div className="column" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
+                                    <TableContainer
+                                        component={Paper}
+                                        className="scrollable-table-container"
+                                        style={{ width: '100%', maxWidth: '2100px', minHeight: '300px' }}
+                                    >
+                                        <Table>
+                                            <TableHead>
+                                                <TableRow>
+                                                    <TableCell align="center" colSpan={data.opinionesPosibles + 1}>
+                                                        <Typography variant="h6" align="center" gutterBottom>
+                                                            Matriz de Transición de Opiniones
+                                                        </Typography>
                                                     </TableCell>
-                                                ))}
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {/* Generar las filas dinámicamente */}
-                                            {Object.keys(outputJson.distribucionFinal).map((opinion, rowIndex) => (
-                                                <TableRow key={rowIndex}>
-                                                    <TableCell align="center" style={{ width: '50px' }}>
-                                                        {opinion}
-                                                    </TableCell>
-                                                    {/* Generar las celdas de cada fila */}
-                                                    {Object.keys(outputJson.distribucionFinal).map((_, colIndex) => {
-                                                        // Buscar el valor correspondiente en 'movimientosRealizados'
-                                                        const cellValue = outputJson.movimientosRealizados.find(
-                                                            item => item.i === rowIndex + 1 && item.j === colIndex + 1
-                                                        );
-                                                        return (
-                                                            <TableCell key={colIndex} align="center" style={{ width: '50px' }}>
-                                                                {cellValue ? cellValue.value : 0}
-                                                            </TableCell>
-                                                        );
-                                                    })}
                                                 </TableRow>
-                                            ))}
-                                            {/* Fila adicional para mostrar la distribución final */}
-                                            <TableRow>
-                                                <TableCell align="center" style={{ width: '50px' }}>Distribución Final</TableCell>
-                                                {Object.keys(outputJson.distribucionFinal).map((opinion, colIndex) => (
-                                                    <TableCell key={colIndex} align="center" style={{ width: '50px' }}>
-                                                        {outputJson.distribucionFinal[opinion]}
-                                                    </TableCell>
+                                                <TableRow>
+                                                    <TableCell align="center" style={{ width: '50px' }}>De \ A</TableCell>
+                                                    {Object.keys(outputJson.distribucionFinal).map((opinion, colIndex) => (
+                                                        <TableCell key={colIndex} align="center" style={{ width: '50px' }}>
+                                                            {opinion}
+                                                        </TableCell>
+                                                    ))}
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {Object.keys(outputJson.distribucionFinal).map((opinion, rowIndex) => (
+                                                    <TableRow key={rowIndex}>
+                                                        <TableCell align="center" style={{ width: '50px' }}>
+                                                            {opinion}
+                                                        </TableCell>
+                                                        {Object.keys(outputJson.distribucionFinal).map((_, colIndex) => {
+                                                            const cellValue = outputJson.movimientosRealizados.find(
+                                                                item => item.i === rowIndex + 1 && item.j === colIndex + 1
+                                                            );
+                                                            return (
+                                                                <TableCell key={colIndex} align="center" style={{ width: '50px' }}>
+                                                                    {cellValue ? cellValue.value : 0}
+                                                                </TableCell>
+                                                            );
+                                                        })}
+                                                    </TableRow>
                                                 ))}
-                                            </TableRow>
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
+                                                <TableRow>
+                                                    <TableCell align="center" style={{ width: '50px' }}>Distribución Final</TableCell>
+                                                    {Object.keys(outputJson.distribucionFinal).map((opinion, colIndex) => (
+                                                        <TableCell key={colIndex} align="center" style={{ width: '50px' }}>
+                                                            {outputJson.distribucionFinal[opinion]}
+                                                        </TableCell>
+                                                    ))}
+                                                </TableRow>
+                                            </TableBody>
+                                        </Table>
+                                    </TableContainer>
+                                </div>
                             </div>
-                        </div>
-                    )}
-
-                    {output && (
-                        <Divider style={{ margin: '20px 0' }} />
-                    )}
-
-                    {output && (
-                        <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                            <Divider style={{ margin: '20px 0' }} />
+                            <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
                             <div className="column" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
 
 
@@ -635,7 +614,9 @@ const DataDisplay = () => {
                                 )}
                             </div>
                         </div>
+                        </>
                     )}
+
 
                     {output && (
                         <Divider style={{ margin: '20px 0' }} />
