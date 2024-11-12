@@ -56,5 +56,3 @@ export const sendDataToBackend = async (data) => {
         throw error;
     }
 };
-
-
