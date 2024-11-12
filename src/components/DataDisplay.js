@@ -21,7 +21,7 @@ const DataDisplay = () => {
         costoMaximo: 0,
         maxMovimientos: 0,
         solver: 'gurobi'
-    });
+    });
 
     const [totalMovimientos, setTotalMovimientos] = useState(0);
     const [output, setOutput] = useState("");
@@ -91,13 +91,13 @@ const DataDisplay = () => {
     const handleSelectChange = (event) => {
         const newValue = event.target.value;
         setSelectedOption(newValue);
-        
+
 
         setData(prevData => ({
             ...prevData,
             solver: newValue || 'gurobi'
         }));
-    };
+    };
 
     const [outputJson, setOutputJson] = useState(null);
 
@@ -107,10 +107,10 @@ const DataDisplay = () => {
         if (output.includes("UNSATISFIABLE")) {
             return "UNSATISFIABLE";
         }
-    
+
         // Separar las secciones del texto por saltos de línea dobles (\n\n, \r\n, \r)
         const secciones = output.trim().split(/\r?\n\r?\n|\r\r/).map(s => s.trim());
-    
+
         // Procesar la sección de distribución final de opiniones
         const distribucion = {};
         secciones[0]
@@ -121,7 +121,7 @@ const DataDisplay = () => {
                 distribucion[opinion] = parseInt(valor, 10);
             });
         resultado.distribucionFinal = distribucion;
-    
+
         // Procesar la sección de movimientos realizados
         const movimientos = [];
         secciones[1]
@@ -138,7 +138,7 @@ const DataDisplay = () => {
                 }
             });
         resultado.movimientosRealizados = movimientos;
-    
+
         // Procesar los valores finales de polarización, costo total y mediana ponderada
         secciones[2]
             .split(/\r?\n|\r|\n/)  // Maneja \n, \r, o \r\n en cada línea
@@ -152,57 +152,61 @@ const DataDisplay = () => {
                     resultado.medianaPonderada = parseFloat(valor);
                 }
             });
-    
+
         // Procesar los valores de x desde la sección específica
         const xMatch = output.match(/x:\[([\d, ]+)\]/);
         if (xMatch && xMatch[1]) {
             resultado.x = xMatch[1].split(',').map(num => parseInt(num.trim(), 10));
         }
-    
+
         return resultado;
     };
 
     const handleSendData = async () => {
         setLoading(true);
         setError(null);
-    
+
         try {
             const result = await sendDataToBackend(data);
-    
-            // Guardar la polarización inicial y mediana inicial
-            setInitialPolarization(result.initial_polarization);
-            setInitialMedian(result.initial_median);
-    
-            // Validar si es insatisfactible
-           // Realiza la conversión a JSON directamente usando result.output
-           if (result.output !== "UNSATISFIABLE") {
-            const json = convertirOutputAJson(result.output);
-            console.log(json)
-            setTotalMovimientos(
-                json.movimientosRealizados
-                    ? json.movimientosRealizados.reduce((acc, item) => acc + (item.value || 0), 0)
-                    : 0
-            );
-            setOutputJson(json);
-            console.log(outputJson);
-            console.log(json);
-        }
 
-    
+            if (result.output.trim().includes("UNSATISFIABLE")) {
+                result.output = "UNSATISFIABLE";
+            }
+            
+            // Validar si es insatisfactible
+            // Realiza la conversión a JSON directamente usando result.output
+            if (result.output !== "UNSATISFIABLE") {
+                // Guardar la polarización inicial y mediana inicial
+                setInitialPolarization(result.initial_polarization);
+                setInitialMedian(result.initial_median);
+
+                const json = convertirOutputAJson(result.output);
+                console.log(json)
+                setTotalMovimientos(
+                    json.movimientosRealizados
+                        ? json.movimientosRealizados.reduce((acc, item) => acc + (item.value || 0), 0)
+                        : 0
+                );
+                setOutputJson(json);
+                console.log(outputJson);
+                console.log(json);
+            }
+
+
             // Procesar 'minizinc_output'
             const trimmedOutput = result.output.trim();
             const json = convertirOutputAJson(trimmedOutput);
-    
+
             setOutput(result.output);
             setOutputJson(json);
-    
+
             // Cálculo de movimientos totales
             setTotalMovimientos(
                 json.movimientosRealizados
                     ? json.movimientosRealizados.reduce((acc, item) => acc + (item.value || 0), 0)
                     : 0
             );
-    
+
             Swal.fire({
                 icon: "success",
                 title: "La información se ha calculado con éxito",
@@ -212,8 +216,8 @@ const DataDisplay = () => {
                 timer: 3000,
                 timerProgressBar: true,
             });
-            
-    
+
+
         } catch (error) {
             setError(error.message);
             Swal.fire({
@@ -226,12 +230,12 @@ const DataDisplay = () => {
                 timer: 3000,
                 timerProgressBar: true,
             });
-            
+
         } finally {
             setLoading(false);
         }
     };
-    
+
     return (
         <div className="data-display-container">
             {loading && (
@@ -286,7 +290,7 @@ const DataDisplay = () => {
                     <MenuItem value="">
                         <em>Seleccione un solver</em>
                     </MenuItem>
-                    <MenuItem value="gecode">Gecode</MenuItem>                    
+                    <MenuItem value="gecode">Gecode</MenuItem>
                     <MenuItem value="gurobi">Gurobi</MenuItem>
                 </Select>
             </div>
@@ -329,64 +333,66 @@ const DataDisplay = () => {
                     {output && (
                         <Typography variant="h6" gutterBottom>Detalle de Resultados</Typography>
                     )}
-                    
-                    {output && (                                      
-                        <TableContainer
-                            component={Paper}
-                            className="table-container"
-                            style={{
-                                maxWidth: '900px', // Adjust the max width based on your layout
-                                margin: '0 auto', // Centers the table horizontally
-                                padding: '20px', // Adsd padding for spacing
-                                minHeight: '300px'
-                            }}
-                        >
-                            <Table>
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell colSpan={5}>
-                                            <Typography variant="h6" align="center" gutterBottom>
-                                                Comparación de valores
-                                            </Typography>
-                                        </TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    <TableRow>
-                                        <TableCell align="center" style={{ width: '50px' }}>Polarización Inicial</TableCell>
-                                        <TableCell align="center" style={{ width: '50px' }}>{outputJson.polarizacionFinal}</TableCell>
-                                        <TableCell align="center" style={{ width: '50px' }}>Polarización Final</TableCell>
-                                        <TableCell align="center" style={{ width: '50px' }}>{outputJson.polarizacionFinal}</TableCell>
-                                        <TableCell align="center" style={{ width: '50px' }}>
-                                            {outputJson.polarizacionFinal < 1 ? "Se disminuyó la polarización" : "No se disminuyó la polarización"}
-                                        </TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                        <TableCell align="center" style={{ width: '50px' }}>Costo Máximo</TableCell>
-                                        <TableCell align="center" style={{ width: '50px' }}>{data.costoMaximo}</TableCell>
-                                        <TableCell align="center" style={{ width: '50px' }}>Costo Total</TableCell>
-                                        <TableCell align="center" style={{ width: '50px' }}>{outputJson.costoTotal}</TableCell>
-                                        <TableCell align="center" style={{ width: '50px' }}>
-                                            {outputJson.costoTotal <= data.costoMaximo ? "Se cumplió con la restricción del costo máximo" : "No se cumplió con la restricción del costo máximo"}
-                                        </TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                        <TableCell align="center" style={{ width: '50px' }}>Cantidad de Movimientos Máximos</TableCell>
-                                        <TableCell align="center" style={{ width: '50px' }}>{data.maxMovimientos}</TableCell>
-                                        <TableCell align="center" style={{ width: '50px' }}>Cantidad de Movimientos Realizados</TableCell>
-                                        <TableCell align="center" style={{ width: '50px' }}>{totalMovimientos}</TableCell>
-                                        <TableCell align="center" style={{ width: '50px' }}>
-                                            {totalMovimientos <= data.maxMovimientos ? "Se cumplió con la restricción de cantidad de movimientos" : "No se cumplió con la restricción de cantidad de movimientos"}
-                                        </TableCell>
-                                    </TableRow>
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    )}
-                    
-                    {output && (
-                        <Divider style={{ margin: '20px 0' }} />
-                    )}
+
+                    {output === "UNSATISFIABLE" ? (
+                        <Typography variant="h4" align="center" style={{ color: 'red', width: '100%' }}>
+                            UNSATISFIABLE
+                        </Typography>
+                    ) : output && (
+                        <>
+                            <TableContainer
+                                component={Paper}
+                                className="table-container"
+                                style={{
+                                    maxWidth: '900px',
+                                    margin: '0 auto',
+                                    padding: '20px',
+                                    minHeight: '300px'
+                                }}
+                            >
+                                <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell colSpan={5}>
+                                                <Typography variant="h6" align="center" gutterBottom>
+                                                    Comparación de valores
+                                                </Typography>
+                                            </TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        <TableRow>
+                                            <TableCell align="center">Polarización Inicial</TableCell>
+                                            <TableCell align="center">{initialPolarization?.toFixed(2)}</TableCell>
+                                            <TableCell align="center">Polarización Final</TableCell>
+                                            <TableCell align="center">{outputJson.polarizacionFinal}</TableCell>
+                                            <TableCell align="center">
+                                                {outputJson.polarizacionFinal < 1 ? "Se disminuyó la polarización" : "No se disminuyó la polarización"}
+                                            </TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell align="center">Costo Máximo</TableCell>
+                                            <TableCell align="center">{data.costoMaximo}</TableCell>
+                                            <TableCell align="center">Costo Total</TableCell>
+                                            <TableCell align="center">{outputJson.costoTotal}</TableCell>
+                                            <TableCell align="center">
+                                                {outputJson.costoTotal <= data.costoMaximo ? "Se cumplió con la restricción del costo máximo" : "No se cumplió con la restricción del costo máximo"}
+                                            </TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell align="center">Cantidad de Movimientos Máximos</TableCell>
+                                            <TableCell align="center">{data.maxMovimientos}</TableCell>
+                                            <TableCell align="center">Cantidad de Movimientos Realizados</TableCell>
+                                            <TableCell align="center">{totalMovimientos}</TableCell>
+                                            <TableCell align="center">
+                                                {totalMovimientos <= data.maxMovimientos ? "Se cumplió con la restricción de cantidad de movimientos" : "No se cumplió con la restricción de cantidad de movimientos"}
+                                            </TableCell>
+                                        </TableRow>
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+
+                            <Divider style={{ margin: '20px 0' }} />
 
                             <div className="row-container" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
                                 <div className="column" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
