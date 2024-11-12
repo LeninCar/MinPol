@@ -50,7 +50,7 @@ const DataDisplay = () => {
         try {
             setFileName(file.name);
             setOutput('');
-            const parsedData = await parseMPLFile(file); // Llama al servicio para procesar el archivo
+            const parsedData = await parseMPLFile(file,selectedOption); // Llama al servicio para procesar el archivo
             setData(parsedData);
             setTimeout(() => setTablesVisible(true), 250);
             const Toast = Swal.mixin({

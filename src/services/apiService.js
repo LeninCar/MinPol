@@ -1,5 +1,5 @@
 
-export const parseMPLFile = async (file) => {
+export const parseMPLFile = async (file,selectedOption) => {
     const readFileAsText = (file) => {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -24,7 +24,7 @@ export const parseMPLFile = async (file) => {
             costosDesplazamiento: lines.slice(5, 5 + m).map(line => line.split(',').map(Number)),
             costoMaximo: parseFloat(lines[5 + m]),
             maxMovimientos: parseInt(lines[6 + m]),
-            solver: 'gurobi'
+            solver: selectedOption || 'gurobi'
             
         };
 
