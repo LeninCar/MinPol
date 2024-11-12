@@ -34,6 +34,12 @@ const DataDisplay = () => {
 
     const [tablesVisible, setTablesVisible] = useState(false);
 
+    const [initialPolarization, setInitialPolarization] = useState(null);
+    const [initialMedian, setInitialMedian] = useState(null);
+    const [error, setError] = useState(null);
+
+
+
     // const navigate = useNavigate();
 
     const [fileName, setFileName] = useState("");
@@ -94,60 +100,44 @@ const DataDisplay = () => {
     };
 
     const [outputJson, setOutputJson] = useState(null);
-
     const convertirOutputAJson = (output) => {
         const resultado = {};
     
-        // Separar las secciones del texto por saltos de línea dobles (maneja \n o \r\n)
         const secciones = output.trim().split(/\r?\n\r?\n/).map(s => s.trim());
     
-        // Procesar la sección de distribución final de opiniones
+        // Procesar distribución final de opiniones
         const distribucion = {};
-        secciones[0]
-            .split(/\r?\n/)  // Maneja \n o \r\n en cada línea
-            .slice(1) // Ignora el encabezado
-            .forEach(line => {
-                const [opinion, valor] = line.split(': ').map(s => s.trim());
-                distribucion[opinion] = parseInt(valor, 10);
-            });
+        secciones[0].split('\n').slice(1).forEach(line => {
+            const [opinion, valor] = line.split(': ').map(s => s.trim());
+            distribucion[opinion] = parseInt(valor, 10);
+        });
         resultado.distribucionFinal = distribucion;
     
-        // Procesar la sección de movimientos realizados
+        // Procesar movimientos realizados
         const movimientos = [];
-        secciones[1]
-            .split(/\r?\n/)  // Maneja \n o \r\n en cada línea
-            .slice(1) // Ignora el encabezado
-            .forEach(line => {
-                const match = line.match(/De (\d+) a (\d+): (\d+)/);
-                if (match) {
-                    movimientos.push({
-                        i: parseInt(match[1], 10),
-                        j: parseInt(match[2], 10),
-                        value: parseInt(match[3], 10)
-                    });
-                }
-            });
+        secciones[1].split('\n').slice(1).forEach(line => {
+            const match = line.match(/De (\d+) a (\d+): (\d+)/);
+            if (match) {
+                movimientos.push({
+                    i: parseInt(match[1], 10),
+                    j: parseInt(match[2], 10),
+                    value: parseInt(match[3], 10)
+                });
+            }
+        });
         resultado.movimientosRealizados = movimientos;
     
-        // Procesar los valores finales de polarización, costo total y mediana ponderada
-        secciones[2]
-            .split(/\r?\n/)  // Maneja \n o \r\n en cada línea
-            .forEach(line => {
-                const [clave, valor] = line.split(': ').map(s => s.trim());
-                if (clave === 'Polarizacion final') {
-                    resultado.polarizacionFinal = parseFloat(valor);
-                } else if (clave === 'Costo total') {
-                    resultado.costoTotal = parseFloat(valor);
-                } else if (clave === 'Mediana ponderada') {
-                    resultado.medianaPonderada = parseFloat(valor);
-                }
-            });
-    
-        // Procesar los valores de x desde la sección específica
-        const xMatch = output.match(/x:\[([\d, ]+)\]/);
-        if (xMatch && xMatch[1]) {
-            resultado.x = xMatch[1].split(',').map(num => parseInt(num.trim(), 10));
-        }
+        // Procesar polarización final, costo total y mediana ponderada
+        secciones[2].split('\n').forEach(line => {
+            const [clave, valor] = line.split(': ').map(s => s.trim());
+            if (clave === 'Polarización final') {
+                resultado.polarizacionFinal = parseFloat(valor);
+            } else if (clave === 'Costo total') {
+                resultado.costoTotal = parseFloat(valor);
+            } else if (clave === 'Mediana ponderada') {
+                resultado.medianaPonderada = parseFloat(valor);
+            }
+        });
     
         return resultado;
     };
@@ -159,67 +149,63 @@ const DataDisplay = () => {
 
     const handleSendData = async () => {
         setLoading(true);
+        setError(null);
+    
         try {
             const result = await sendDataToBackend(data);
-
-            // Actualiza el estado con el resultado recibido
-            setOutput(result.output);
-            // setShowGraphButton(true);
-
-            // Realiza la conversión a JSON directamente usando result.output
-            if (result.output !== "=====UNSATISFIABLE=====\n") {
-                const json = convertirOutputAJson(result.output);
-                console.log(json)
-                setTotalMovimientos(
-                    json.movimientosRealizados
-                        ? json.movimientosRealizados.reduce((acc, item) => acc + (item.value || 0), 0)
-                        : 0
-                );
-                setOutputJson(json);
-                console.log(outputJson);
-                console.log(json);
+    
+            // Guardar la polarización inicial y mediana inicial
+            setInitialPolarization(result.initial_polarization);
+            setInitialMedian(result.initial_median);
+    
+            // Validar si es insatisfactible
+            if (result.minizinc_output.includes("=====UNSATISFIABLE=====")) {
+                throw new Error("El modelo no tiene solución (UNSATISFIABLE).");
             }
-
-
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.onmouseenter = Swal.stopTimer;
-                    toast.onmouseleave = Swal.resumeTimer;
-                }
-            });
-            Toast.fire({
+    
+            // Procesar 'minizinc_output'
+            const trimmedOutput = result.minizinc_output.trim();
+            const json = convertirOutputAJson(trimmedOutput);
+    
+            setOutput(result.minizinc_output);
+            setOutputJson(json);
+    
+            // Cálculo de movimientos totales
+            setTotalMovimientos(
+                json.movimientosRealizados
+                    ? json.movimientosRealizados.reduce((acc, item) => acc + (item.value || 0), 0)
+                    : 0
+            );
+    
+            Swal.fire({
                 icon: "success",
-                title: "La información se ha calculado con éxito"
-            });
-
-        } catch (error) {
-            console.error("Error:", error.message);
-            const Toast = Swal.mixin({
+                title: "La información se ha calculado con éxito",
                 toast: true,
                 position: 'top-end',
                 showConfirmButton: false,
                 timer: 3000,
                 timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.onmouseenter = Swal.stopTimer;
-                    toast.onmouseleave = Swal.resumeTimer;
-                }
             });
-            Toast.fire({
+            
+    
+        } catch (error) {
+            setError(error.message);
+            Swal.fire({
                 icon: "error",
-                title: error.message
+                title: "Error",
+                text: error.message || "Ocurrió un error desconocido",
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
             });
-
+            
         } finally {
             setLoading(false);
         }
     };
-
+    
     return (
         <div className="data-display-container">
             {loading && (
@@ -343,13 +329,13 @@ const DataDisplay = () => {
                                 <TableBody>
                                     <TableRow>
                                         <TableCell align="center" style={{ width: '50px' }}>Polarización Inicial</TableCell>
-                                        <TableCell align="center" style={{ width: '50px' }}>{outputJson.polarizacionFinal}</TableCell>
+                                        <TableCell align="center" style={{ width: '50px' }}>{initialPolarization?.toFixed(2)}</TableCell>
                                         <TableCell align="center" style={{ width: '50px' }}>Polarización Final</TableCell>
                                         <TableCell align="center" style={{ width: '50px' }}>{outputJson.polarizacionFinal}</TableCell>
                                         <TableCell align="center" style={{ width: '50px' }}>
-                                            {outputJson.polarizacionFinal < 1 ? "Se disminuyó la polarización" : "No se disminuyó la polarización"}
+                                            {outputJson.polarizacionFinal < initialPolarization ? "Se disminuyó la polarización" : "No se disminuyó la polarización"}
                                         </TableCell>
-                                    </TableRow>
+                                    </TableRow>                                     
                                     <TableRow>
                                         <TableCell align="center" style={{ width: '50px' }}>Costo Máximo</TableCell>
                                         <TableCell align="center" style={{ width: '50px' }}>{data.costoMaximo}</TableCell>

@@ -36,8 +36,8 @@ export const parseMPLFile = async (file) => {
 
 export const sendDataToBackend = async (data) => {
     try {
-         const response = await fetch("https://6892-148-113-195-81.ngrok-free.app/process-data/", {
-        // const response = await fetch("http://127.0.0.1:8000/process-data/", {
+        //const response = await fetch("https://6892-148-113-195-81.ngrok-free.app/process-data/", {
+        const response = await fetch("http://127.0.0.1:8000/process-data/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
